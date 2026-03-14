@@ -4,7 +4,7 @@ import { useState, useCallback, useRef, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "@/i18n/navigation";
-import { createProduct, uploadCapture, getProductStatus, IS_MOCK } from "@/lib/api";
+import { IS_MOCK } from "@/lib/api";
 import { AppShell } from "@/components/layout/app-shell";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -42,17 +42,17 @@ const PROGRESS_MESSAGES: { key: string; percent: number }[] = [
 
 const DEMO_GLB = "https://modelviewer.dev/shared-assets/models/Astronaut.glb";
 
-function makeMockProduct(name: string): ARModel {
-  const id = `mock-${Math.random().toString(36).slice(2, 10)}`;
+function makeProduct(name: string, glbUrl: string, usdzUrl?: string | null, thumbnailUrl?: string | null): ARModel {
+  const id = `product-${Math.random().toString(36).slice(2, 10)}`;
   return {
     id,
     name,
     status: "ready",
-    shortId: id.slice(5, 11),
-    modelUrl: DEMO_GLB,
-    glbUrl: DEMO_GLB,
-    usdzUrl: null,
-    thumbnailUrl: null,
+    shortId: id.slice(8, 14),
+    modelUrl: glbUrl,
+    glbUrl,
+    usdzUrl: usdzUrl ?? null,
+    thumbnailUrl: thumbnailUrl ?? null,
     qualityScore: 84,
     arScore: 84,
     scanCount: 0,
@@ -71,7 +71,7 @@ const EXPERIENCE_OPTIONS: { id: ExperienceType; icon: React.ElementType; titleKe
 
 export default function NewProductPage() {
   const t = useTranslations("productNew");
-  const { user } = useAuth();
+  useAuth(); // keeps mock user alive
   const router = useRouter();
 
   const [step, setStep] = useState<WizardStep>("photos");
@@ -157,7 +157,7 @@ export default function NewProductPage() {
         setProgressIndex(i);
       } else {
         clearInterval(interval);
-        setProduct(makeMockProduct(productName));
+        setProduct(makeProduct(productName, DEMO_GLB));
         setTimeout(() => setStep("result"), 400);
       }
     }, 1800);
@@ -166,53 +166,76 @@ export default function NewProductPage() {
   const startGeneration = useCallback(async () => {
     if (!name.trim() || photos.length === 0 || !selectedExp) return;
 
-    // Mock mode: skip API, simulate directly
-    if (IS_MOCK) {
-      runMockGeneration(name.trim());
-      return;
-    }
-
-    if (!user) return;
     setStep("generating");
     setProgressIndex(0);
     setErrorMsg(null);
 
+    // Progress animation — Meshy prend 1-3 minutes
     let msgIndex = 0;
     const msgInterval = setInterval(() => {
       msgIndex += 1;
       if (msgIndex < PROGRESS_MESSAGES.length - 1) setProgressIndex(msgIndex);
       else clearInterval(msgInterval);
-    }, 3000);
+    }, IS_MOCK ? 1800 : 20000);
 
+    // Essayer la vraie génération Meshy
     try {
-      const created = await createProduct({ name: name.trim() });
-      await uploadCapture(created.id, photos[0]);
+      const formData = new FormData();
+      formData.append("image", photos[0]);
 
+      const startResp = await fetch("/api/generate", { method: "POST", body: formData });
+
+      if (!startResp.ok) {
+        // API non configurée → fallback mock
+        clearInterval(msgInterval);
+        runMockGeneration(name.trim());
+        return;
+      }
+
+      const { taskId } = await startResp.json() as { taskId: string };
+
+      // Polling Meshy toutes les 5s
       pollingRef.current = setInterval(async () => {
         try {
-          const status = await getProductStatus(created.id);
-          if (status.status === "ready") {
+          const pollResp = await fetch(`/api/generate/${taskId}`);
+          const result = await pollResp.json() as {
+            status: string; progress: number;
+            glbUrl: string | null; usdzUrl: string | null; thumbnailUrl: string | null;
+          };
+
+          // Mettre à jour la barre de progression
+          if (result.progress > 0) {
+            const pct = result.progress;
+            const idx = PROGRESS_MESSAGES.findIndex(m => m.percent >= pct);
+            if (idx >= 0) setProgressIndex(idx);
+          }
+
+          if (result.status === "SUCCEEDED" && result.glbUrl) {
             if (pollingRef.current) clearInterval(pollingRef.current);
             clearInterval(msgInterval);
             setProgressIndex(PROGRESS_MESSAGES.length - 1);
-            setProduct(status);
+            setProduct(makeProduct(name.trim(), result.glbUrl, result.usdzUrl, result.thumbnailUrl));
             setTimeout(() => setStep("result"), 800);
-          } else if (status.status === "failed") {
+          } else if (result.status === "FAILED" || result.status === "EXPIRED") {
             if (pollingRef.current) clearInterval(pollingRef.current);
             clearInterval(msgInterval);
-            setErrorMsg(t("failed"));
+            setErrorMsg("La génération 3D a échoué. Réessayez avec une photo plus nette.");
             setStep("failed");
           }
         } catch { /* continue polling */ }
-      }, 4000);
-    } catch (err) {
+      }, 5000);
+
+    } catch {
+      // Réseau indisponible → fallback mock
       clearInterval(msgInterval);
-      const msg = err instanceof Error ? err.message : "Erreur inattendue";
-      setErrorMsg(msg);
-      toast.error(msg);
-      setStep("failed");
+      if (IS_MOCK) {
+        runMockGeneration(name.trim());
+      } else {
+        setErrorMsg("Service de génération indisponible.");
+        setStep("failed");
+      }
     }
-  }, [user, name, photos, selectedExp, t, runMockGeneration]);
+  }, [name, photos, selectedExp, t, runMockGeneration]);
 
   const arBaseUrl = typeof window !== "undefined" ? window.location.origin : "https://arshot-dashboard.vercel.app";
   // En mode mock, le produit n'est pas en base → lien direct vers le viewer HTML avec le GLB en param
@@ -467,6 +490,7 @@ export default function NewProductPage() {
               </p>
               <p className="text-center text-xs text-muted-foreground/60">
                 {photos.length} photo{photos.length > 1 ? "s" : ""} · {name}
+                {!IS_MOCK && " · 1 à 3 minutes"}
               </p>
             </div>
           </div>
