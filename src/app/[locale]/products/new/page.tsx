@@ -178,7 +178,7 @@ export default function NewProductPage() {
       else clearInterval(msgInterval);
     }, IS_MOCK ? 1800 : 20000);
 
-    // Essayer la vraie génération Meshy
+    // Génération fal-ai/trellis
     try {
       const formData = new FormData();
       formData.append("image", photos[0]);
@@ -186,15 +186,18 @@ export default function NewProductPage() {
       const startResp = await fetch("/api/generate", { method: "POST", body: formData });
 
       if (!startResp.ok) {
-        // API non configurée → fallback mock
+        const errData = await startResp.json().catch(() => ({})) as { error?: string };
         clearInterval(msgInterval);
-        runMockGeneration(name.trim());
+        setErrorMsg(errData.error === "FAL_API_KEY not configured"
+          ? "FAL_API_KEY manquante — configure-la dans les variables d'environnement Vercel."
+          : `Erreur génération (${startResp.status}) — réessaye.`);
+        setStep("failed");
         return;
       }
 
       const { taskId } = await startResp.json() as { taskId: string };
 
-      // Polling Meshy toutes les 5s
+      // Polling fal-ai/trellis toutes les 5s
       pollingRef.current = setInterval(async () => {
         try {
           const pollResp = await fetch(`/api/generate/${taskId}`);
@@ -203,7 +206,6 @@ export default function NewProductPage() {
             glbUrl: string | null; usdzUrl: string | null; thumbnailUrl: string | null;
           };
 
-          // Mettre à jour la barre de progression
           if (result.progress > 0) {
             const pct = result.progress;
             const idx = PROGRESS_MESSAGES.findIndex(m => m.percent >= pct);
@@ -216,7 +218,7 @@ export default function NewProductPage() {
             setProgressIndex(PROGRESS_MESSAGES.length - 1);
             setProduct(makeProduct(name.trim(), result.glbUrl, result.usdzUrl, result.thumbnailUrl));
             setTimeout(() => setStep("result"), 800);
-          } else if (result.status === "FAILED" || result.status === "EXPIRED") {
+          } else if (result.status === "FAILED") {
             if (pollingRef.current) clearInterval(pollingRef.current);
             clearInterval(msgInterval);
             setErrorMsg("La génération 3D a échoué. Réessayez avec une photo plus nette.");
@@ -226,16 +228,11 @@ export default function NewProductPage() {
       }, 5000);
 
     } catch {
-      // Réseau indisponible → fallback mock
       clearInterval(msgInterval);
-      if (IS_MOCK) {
-        runMockGeneration(name.trim());
-      } else {
-        setErrorMsg("Service de génération indisponible.");
-        setStep("failed");
-      }
+      setErrorMsg("Service de génération indisponible.");
+      setStep("failed");
     }
-  }, [name, photos, selectedExp, t, runMockGeneration]);
+  }, [name, photos, selectedExp, t]);
 
   const arBaseUrl = typeof window !== "undefined" ? window.location.origin : "https://arshot-dashboard.vercel.app";
   // En mode mock, le produit n'est pas en base → lien direct vers le viewer HTML avec le GLB en param
