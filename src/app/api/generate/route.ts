@@ -2,18 +2,39 @@ import { NextRequest, NextResponse } from "next/server";
 
 const FAL_QUEUE = "https://queue.fal.run/fal-ai/trellis";
 
+// Augmenter la limite body pour les images volumineuses
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
+
 export async function POST(req: NextRequest) {
   // Lire la clé à l'intérieur de la fonction (pas au niveau module)
-  const FAL_KEY = process.env.FAL_API_KEY;
+  const FAL_KEY = process.env.FAL_API_KEY ?? process.env.FAL_KEY;
 
-  console.log("[generate] FAL_API_KEY present:", !!FAL_KEY, "| length:", FAL_KEY?.length ?? 0);
+  console.log(
+    "[generate] FAL_API_KEY present:", !!process.env.FAL_API_KEY,
+    "| FAL_KEY present:", !!process.env.FAL_KEY,
+    "| resolved:", !!FAL_KEY
+  );
 
   if (!FAL_KEY) {
-    console.error("[generate] FAL_API_KEY is missing from environment");
-    return NextResponse.json({ error: "FAL_API_KEY not configured" }, { status: 503 });
+    console.error("[generate] No FAL key found. Set FAL_API_KEY in Vercel env vars and redeploy.");
+    return NextResponse.json(
+      { error: "FAL_API_KEY not configured — check Vercel env vars and redeploy" },
+      { status: 503 }
+    );
   }
 
-  const formData = await req.formData();
+  let formData: FormData;
+  try {
+    formData = await req.formData();
+  } catch (e) {
+    console.error("[generate] Failed to parse formData:", e);
+    return NextResponse.json({ error: "Invalid form data or file too large (max ~3MB)" }, { status: 413 });
+  }
+
   const file = formData.get("image") as File | null;
   if (!file) return NextResponse.json({ error: "No image" }, { status: 400 });
 
