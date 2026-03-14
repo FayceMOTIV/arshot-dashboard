@@ -55,11 +55,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ViewerPage({ params }: Props) {
   const { id } = await params;
-  const data = await fetchViewerData(id);
+  const rawData = await fetchViewerData(id);
 
   // Fallback démo quand le backend est injoignable (Vercel sans backend)
-  if (!data || data.status !== "ready" || !data.glb_url) {
-    data = {
+  const data = (!rawData || rawData.status !== "ready" || !rawData.glb_url)
+    ? {
       model_id: id,
       name: "Astronaute — Démo ARShot",
       status: "ready",
@@ -69,8 +69,8 @@ export default async function ViewerPage({ params }: Props) {
       branding: "watermark",
       app_url: "https://arshot-dashboard.vercel.app",
       viewer_settings: { auto_rotate: true, ar: true, bg_color: "#ffffff" },
-    };
-  }
+    } satisfies ViewerData
+    : rawData;
 
   return <ViewerClient data={data} modelId={id} />;
 }
