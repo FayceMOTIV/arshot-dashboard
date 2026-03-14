@@ -8,8 +8,8 @@
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      background: #0a0a0a;
-      color: #fff;
+      background: #f5f5f5;
+      color: #111;
       font-family: system-ui, -apple-system, sans-serif;
       min-height: 100dvh;
       display: flex;
@@ -22,8 +22,9 @@
       display: flex;
       align-items: center;
       gap: 10px;
-      background: rgba(255,255,255,0.05);
+      background: rgba(255,255,255,0.9);
       backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(0,0,0,0.06);
     }
     #header img { height: 28px; }
     #product-name {
@@ -33,12 +34,14 @@
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+      color: #111;
     }
     model-viewer {
       width: 100%;
       flex: 1;
       min-height: 60dvh;
-      --poster-color: transparent;
+      background: #ffffff;
+      --poster-color: #f5f5f5;
     }
     #ar-btn {
       margin: 20px;
@@ -74,7 +77,9 @@
     auto-rotate
     ar
     ar-modes="webxr scene-viewer quick-look"
-    shadow-intensity="1"
+    exposure="1.5"
+    shadow-intensity="0.5"
+    environment-image="neutral"
     loading="eager"
   ></model-viewer>
 
@@ -92,7 +97,9 @@
       const params = new URLSearchParams(window.location.search);
       const glb = params.get("glb");
       const usdz = params.get("usdz");
-      const name = params.get("name") || "Produit AR";
+      const rawName = params.get("name") || "";
+      // Guard against test products with single-char names
+      const name = rawName.trim().length > 1 ? rawName.trim() : "Produit AR";
 
       document.getElementById("product-name").textContent = name;
       document.title = name + " — ARShot";
