@@ -4,12 +4,12 @@ import { useEffect, useState, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { useParams } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
-import { usePolling } from "@/hooks/usePolling";
-import { getProductStatus, getStudioTrends, generateStudioVideo, getStudioJob } from "@/lib/api";
+import { getProductStatus, getStudioTrends } from "@/lib/api";
 import { AppShell } from "@/components/layout/app-shell";
 import { TemplateGrid } from "@/components/studio/template-grid";
 import { JobProgress } from "@/components/studio/job-progress";
 import { VideoPreview } from "@/components/studio/video-preview";
+import { ModelRecorder } from "@/components/studio/model-recorder";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -52,30 +52,6 @@ export default function StudioProductPage() {
   const [selectedTemplate, setSelectedTemplate] = useState<VideoTemplateName | null>(null);
   const [trend, setTrend] = useState<TrendData | null>(null);
   const [currentJob, setCurrentJob] = useState<StudioJob | null>(null);
-  const [generating, setGenerating] = useState(false);
-
-  const { start: startPolling } = usePolling<StudioJob>({
-    fetchFn: () => getStudioJob(currentJob?.id || ""),
-    interval: 5000,
-    maxPolls: 30,
-    shouldStop: (job) => job.status === "done" || job.status === "failed",
-    onUpdate: (job) => {
-      setCurrentJob(job);
-      if (job.status === "done") {
-        toast.success(t("videoReady"));
-      }
-      if (job.status === "failed") {
-        toast.error(t("videoFailed"));
-      }
-    },
-    onMaxReached: () => {
-      toast.error(t("videoFailed"));
-      setCurrentJob((prev) =>
-        prev ? { ...prev, status: "failed" } : null
-      );
-    },
-    enabled: false,
-  });
 
   useEffect(() => {
     async function loadData() {
@@ -97,32 +73,32 @@ export default function StudioProductPage() {
     loadData();
   }, [user, productId]);
 
-  const handleGenerate = useCallback(async () => {
+  const handleGenerate = useCallback(() => {
     if (!selectedTemplate) return;
-    setGenerating(true);
-    try {
-      const job = await generateStudioVideo(productId, selectedTemplate).catch(
-        () =>
-          ({
-            id: "mock-job-1",
-            productId,
-            template: selectedTemplate,
-            status: "processing",
-            videoUrl: null,
-            thumbnailUrl: null,
-            progress: 0,
-            createdAt: new Date().toISOString(),
-            completedAt: null,
-          }) as StudioJob
-      );
-      setCurrentJob(job);
-      startPolling();
-    } catch {
-      toast.error(t("videoFailed"));
-    } finally {
-      setGenerating(false);
+
+    if (!model?.glbUrl) {
+      toast.error("Aucun modèle 3D disponible pour ce produit.");
+      return;
     }
-  }, [selectedTemplate, productId, startPolling, t]);
+
+    // Génération côté client via MediaRecorder — 0€, pas d'API externe
+    setCurrentJob({
+      id: "client-local",
+      productId,
+      template: selectedTemplate,
+      status: "processing",
+      videoUrl: null,
+      thumbnailUrl: null,
+      progress: 0,
+      createdAt: new Date().toISOString(),
+      completedAt: null,
+    });
+  }, [selectedTemplate, productId, model]);
+
+  const handleReset = useCallback(() => {
+    setCurrentJob(null);
+    setSelectedTemplate(null);
+  }, []);
 
   if (loading) {
     return (
@@ -135,6 +111,9 @@ export default function StudioProductPage() {
   }
 
   if (!model) return null;
+
+  const isRecording =
+    currentJob?.id === "client-local" && currentJob.status === "processing";
 
   return (
     <AppShell>
@@ -160,33 +139,52 @@ export default function StudioProductPage() {
           )}
         </div>
 
-        {/* Template Selection */}
-        <TemplateGrid
-          selectedTemplate={selectedTemplate}
-          trendingTemplate={trend?.recommendedTemplate || null}
-          onSelect={setSelectedTemplate}
-        />
-
-        {/* Generate Button */}
+        {/* Template Selection — masqué pendant la génération */}
         {!currentJob && (
-          <div className="flex justify-center">
-            <Button
-              size="lg"
-              className="gap-2 bg-[#0066FF] hover:bg-[#0052CC] text-white px-8"
-              disabled={!selectedTemplate || generating}
-              onClick={handleGenerate}
-            >
-              {generating ? (
-                <Loader2 className="h-5 w-5 animate-spin" />
-              ) : (
+          <>
+            <TemplateGrid
+              selectedTemplate={selectedTemplate}
+              trendingTemplate={trend?.recommendedTemplate || null}
+              onSelect={setSelectedTemplate}
+            />
+            <div className="flex justify-center">
+              <Button
+                size="lg"
+                className="gap-2 bg-[#0066FF] hover:bg-[#0052CC] text-white px-8"
+                disabled={!selectedTemplate}
+                onClick={handleGenerate}
+              >
                 <Wand2 className="h-5 w-5" />
-              )}
-              {generating ? t("generating") : t("generate")}
-            </Button>
-          </div>
+                {t("generate")}
+              </Button>
+            </div>
+          </>
         )}
 
-        {/* Job Progress */}
+        {/* Capture côté client — invisible, purement impératif */}
+        {isRecording && model.glbUrl && (
+          <ModelRecorder
+            glbUrl={model.glbUrl}
+            durationSeconds={8}
+            onProgress={(p) =>
+              setCurrentJob((prev) => (prev ? { ...prev, progress: p } : prev))
+            }
+            onDone={(url) => {
+              setCurrentJob((prev) =>
+                prev
+                  ? { ...prev, status: "done", videoUrl: url, progress: 100, completedAt: new Date().toISOString() }
+                  : prev
+              );
+              toast.success(t("videoReady"));
+            }}
+            onError={(err) => {
+              setCurrentJob((prev) => (prev ? { ...prev, status: "failed" } : prev));
+              toast.error(err);
+            }}
+          />
+        )}
+
+        {/* Progress bar pendant l'enregistrement */}
         {currentJob && currentJob.status !== "done" && (
           <Card>
             <CardHeader>
@@ -194,22 +192,36 @@ export default function StudioProductPage() {
                 {t("generating")}
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-3">
               <JobProgress
                 status={currentJob.status}
                 progress={currentJob.progress}
               />
+              {currentJob.status === "failed" && (
+                <div className="flex justify-center pt-2">
+                  <Button variant="outline" size="sm" onClick={handleReset}>
+                    Réessayer
+                  </Button>
+                </div>
+              )}
             </CardContent>
           </Card>
         )}
 
-        {/* Video Preview */}
+        {/* Vidéo prête */}
         {currentJob?.status === "done" && currentJob.videoUrl && (
-          <VideoPreview
-            videoUrl={currentJob.videoUrl}
-            productId={productId}
-            jobId={currentJob.id}
-          />
+          <>
+            <VideoPreview
+              videoUrl={currentJob.videoUrl}
+              productId={productId}
+              jobId={currentJob.id}
+            />
+            <div className="flex justify-center">
+              <Button variant="outline" size="sm" onClick={handleReset}>
+                Générer une autre vidéo
+              </Button>
+            </div>
+          </>
         )}
       </div>
     </AppShell>
