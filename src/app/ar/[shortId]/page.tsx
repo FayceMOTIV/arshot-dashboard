@@ -96,7 +96,7 @@ export default async function ARViewerPage({ params }: ARPageProps) {
 
   // Android / Desktop → static AR page with model-viewer
   const qs = new URLSearchParams({
-    glb: product.glbUrl,
+    glb: product.glbUrl ?? "",
     name: product.name,
     ...(product.usdzUrl ? { usdz: product.usdzUrl } : {}),
   });
