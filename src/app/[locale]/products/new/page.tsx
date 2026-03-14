@@ -214,8 +214,13 @@ export default function NewProductPage() {
     }
   }, [user, name, photos, selectedExp, t, runMockGeneration]);
 
-  const arBaseUrl = typeof window !== "undefined" ? window.location.origin : "https://ar.arshot.io";
-  const arLink = product ? `${arBaseUrl}/ar/${product.shortId}` : "";
+  const arBaseUrl = typeof window !== "undefined" ? window.location.origin : "https://arshot-dashboard.vercel.app";
+  // En mode mock, le produit n'est pas en base → lien direct vers le viewer HTML avec le GLB en param
+  const arLink = product
+    ? IS_MOCK && product.glbUrl
+      ? `${arBaseUrl}/ar.html?glb=${encodeURIComponent(product.glbUrl)}&name=${encodeURIComponent(product.name)}`
+      : `${arBaseUrl}/ar/${product.shortId}`
+    : "";
 
   const copyLink = useCallback(() => {
     navigator.clipboard.writeText(arLink);
