@@ -1,0 +1,32 @@
+import type { Metadata } from "next";
+import { Geist, Inter } from "next/font/google";
+import "./globals.css";
+
+const geist = Geist({
+  variable: "--font-geist",
+  subsets: ["latin"],
+});
+
+const inter = Inter({
+  variable: "--font-inter",
+  subsets: ["latin"],
+});
+
+export const metadata: Metadata = {
+  title: "ARShot — AR pour e-commerçants",
+  description: "Créez des expériences AR pour vos produits en quelques minutes",
+};
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html suppressHydrationWarning>
+      <body className={`${geist.variable} ${inter.variable} font-sans antialiased`}>
+        {children}
+      </body>
+    </html>
+  );
+}
