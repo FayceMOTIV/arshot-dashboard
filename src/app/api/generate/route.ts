@@ -1,24 +1,30 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const FAL_KEY = process.env.FAL_API_KEY;
 const FAL_QUEUE = "https://queue.fal.run/fal-ai/trellis";
 
 export async function POST(req: NextRequest) {
+  // Lire la clé à l'intérieur de la fonction (pas au niveau module)
+  const FAL_KEY = process.env.FAL_API_KEY;
+
+  console.log("[generate] FAL_API_KEY present:", !!FAL_KEY, "| length:", FAL_KEY?.length ?? 0);
+
   if (!FAL_KEY) {
+    console.error("[generate] FAL_API_KEY is missing from environment");
     return NextResponse.json({ error: "FAL_API_KEY not configured" }, { status: 503 });
   }
 
-  // Read uploaded image and convert to base64 data URL (no storage upload needed)
   const formData = await req.formData();
   const file = formData.get("image") as File | null;
   if (!file) return NextResponse.json({ error: "No image" }, { status: 400 });
 
+  // Convertir en base64 data URL — pas besoin d'uploader vers fal.ai storage
   const arrayBuffer = await file.arrayBuffer();
   const base64 = Buffer.from(arrayBuffer).toString("base64");
   const contentType = file.type || "image/jpeg";
   const imageUrl = `data:${contentType};base64,${base64}`;
 
-  // Submit to fal-ai/trellis
+  console.log("[generate] Submitting to fal-ai/trellis, image size:", arrayBuffer.byteLength, "bytes");
+
   const genResp = await fetch(FAL_QUEUE, {
     method: "POST",
     headers: {
@@ -36,10 +42,11 @@ export async function POST(req: NextRequest) {
 
   if (!genResp.ok) {
     const err = await genResp.text();
-    console.error("[fal-ai/trellis] Submit error:", genResp.status, err);
+    console.error("[generate] fal-ai/trellis error:", genResp.status, err);
     return NextResponse.json({ error: "Generation failed", detail: err }, { status: 500 });
   }
 
-  const { request_id } = await genResp.json() as { request_id: string };
-  return NextResponse.json({ taskId: request_id });
+  const data = await genResp.json() as { request_id: string };
+  console.log("[generate] Job submitted, request_id:", data.request_id);
+  return NextResponse.json({ taskId: data.request_id });
 }
