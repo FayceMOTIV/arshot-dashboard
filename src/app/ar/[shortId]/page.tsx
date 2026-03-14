@@ -75,14 +75,14 @@ export default async function ARViewerPage({ params }: ARPageProps) {
     );
   }
 
-  const product = await fetchProductData(shortId);
+  const DEMO_GLB = "https://modelviewer.dev/shared-assets/models/Astronaut.glb";
+  const DEMO_NAME = "Astronaute — Démo ARShot";
 
+  let product = await fetchProductData(shortId);
+
+  // Fallback démo quand le backend est injoignable (Vercel sans backend)
   if (!product || !product.glbUrl) {
-    return (
-      <div style={{ display: "flex", minHeight: "100vh", alignItems: "center", justifyContent: "center" }}>
-        <p>Produit non trouvé</p>
-      </div>
-    );
+    product = { id: shortId, name: DEMO_NAME, glbUrl: DEMO_GLB, usdzUrl: null, thumbnailUrl: null };
   }
 
   // Smart redirect: iOS → USDZ direct (AR Quick Look instant), others → ar.html

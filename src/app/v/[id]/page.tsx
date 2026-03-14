@@ -57,15 +57,19 @@ export default async function ViewerPage({ params }: Props) {
   const { id } = await params;
   const data = await fetchViewerData(id);
 
+  // Fallback démo quand le backend est injoignable (Vercel sans backend)
   if (!data || data.status !== "ready" || !data.glb_url) {
-    return (
-      <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center">
-        <div className="text-center text-white/60">
-          <p className="text-lg font-medium mb-2">Produit non disponible</p>
-          <p className="text-sm">Ce lien est invalide ou le modèle n&apos;est pas encore prêt.</p>
-        </div>
-      </div>
-    );
+    data = {
+      model_id: id,
+      name: "Astronaute — Démo ARShot",
+      status: "ready",
+      glb_url: "https://modelviewer.dev/shared-assets/models/Astronaut.glb",
+      usdz_url: null,
+      thumbnail_url: null,
+      branding: "watermark",
+      app_url: "https://arshot-dashboard.vercel.app",
+      viewer_settings: { auto_rotate: true, ar: true, bg_color: "#ffffff" },
+    };
   }
 
   return <ViewerClient data={data} modelId={id} />;
