@@ -99,6 +99,8 @@
     "launchGeneration": "3D-Generierung starten",
     "generationInProgress": "Generierung läuft...",
     "generationReady": "Ihr 3D-Modell ist fertig!",
+    "deleted": "Product deleted",
+    "deleteFailed": "Failed to delete",
     "generationFailed": "Generierung fehlgeschlagen"
   },
   "productNew": {

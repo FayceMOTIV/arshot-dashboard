@@ -33,6 +33,8 @@ import {
   PackageOpen,
   ArrowLeft,
   Smartphone,
+  Film,
+  Clapperboard,
 } from "lucide-react";
 import { toast } from "sonner";
 import { StylePreviewSection } from "@/components/style-match/style-preview-section";
@@ -72,7 +74,9 @@ export default function ProductDetailPage() {
 
   const modelId = params.id as string;
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://ar.arshot.fr";
-  const shareUrl = `${appUrl}/ar/${model?.shortId || model?.id || ""}`;
+  // /v/{id} → React viewer (richer). ?ar=true sur QR pour auto-lancer l'AR au scan.
+  const shareUrl = `${appUrl}/v/${model?.id || ""}`;
+  const qrUrl = `${shareUrl}?ar=true`;
 
   useEffect(() => {
     async function loadModel() {
@@ -296,49 +300,36 @@ export default function ProductDetailPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-2">
-                <a
-                  href={shareUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block"
-                >
-                  <Button
-                    className="w-full justify-start gap-2 bg-[#0066FF] hover:bg-[#0052CC] text-white"
-                  >
+                {/* Voir en AR — ouvre le viewer en plein écran */}
+                <a href={shareUrl} target="_blank" rel="noopener noreferrer" className="block">
+                  <Button className="w-full justify-start gap-2 bg-[#0066FF] hover:bg-[#0052CC] text-white">
                     <Smartphone className="h-4 w-4" />
                     {t("viewInAR")}
                   </Button>
                 </a>
-                <Button
-                  variant="outline"
-                  className="w-full justify-start gap-2"
-                  onClick={copyArLink}
-                >
-                  {copiedLink ? (
-                    <Check className="h-4 w-4 text-emerald-500" />
-                  ) : (
-                    <Copy className="h-4 w-4" />
-                  )}
+                <Button variant="outline" className="w-full justify-start gap-2" onClick={copyArLink}>
+                  {copiedLink ? <Check className="h-4 w-4 text-emerald-500" /> : <Copy className="h-4 w-4" />}
                   {t("copyArLink")}
                 </Button>
+                {/* Créer une vidéo Studio */}
+                <Link href={`/studio/${modelId}`} className="block">
+                  <Button variant="outline" className="w-full justify-start gap-2">
+                    <Clapperboard className="h-4 w-4" />
+                    Créer une vidéo
+                  </Button>
+                </Link>
                 {model.glbUrl && (
                   <>
-                    <a href={model.glbUrl} download className="block">
-                      <Button
-                        variant="outline"
-                        className="w-full justify-start gap-2"
-                      >
-                        <ShoppingBag className="h-4 w-4" />
-                        {t("exportShopify")}
+                    <a href={model.glbUrl} download={`${model.name}.glb`} className="block">
+                      <Button variant="outline" className="w-full justify-start gap-2">
+                        <Download className="h-4 w-4" />
+                        Télécharger GLB
                       </Button>
                     </a>
                     <a href={model.glbUrl} download className="block">
-                      <Button
-                        variant="outline"
-                        className="w-full justify-start gap-2"
-                      >
-                        <ExternalLink className="h-4 w-4" />
-                        {t("exportAmazon")}
+                      <Button variant="outline" className="w-full justify-start gap-2">
+                        <ShoppingBag className="h-4 w-4" />
+                        {t("exportShopify")}
                       </Button>
                     </a>
                   </>
@@ -357,7 +348,7 @@ export default function ProductDetailPage() {
               <CardContent className="flex flex-col items-center gap-3">
                 <div ref={qrRef} className="rounded-lg bg-white p-3">
                   <QRCodeSVG
-                    value={shareUrl}
+                    value={qrUrl}
                     size={160}
                     level="H"
                     fgColor="#0A0A0A"

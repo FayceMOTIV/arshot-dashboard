@@ -89,6 +89,15 @@ export async function getProductStatus(productId: string): Promise<ARModel> {
   return mapBackendProduct(raw);
 }
 
+export async function deleteProduct(id: string): Promise<void> {
+  const hdrs = await authHeaders();
+  const resp = await fetch(`/api/v1/products/${id}`, { method: "DELETE", headers: hdrs });
+  if (!resp.ok && resp.status !== 404) {
+    const err = await resp.json().catch(() => ({ detail: "Erreur réseau" }));
+    throw new Error(err.detail || `Erreur ${resp.status}`);
+  }
+}
+
 export async function createProduct(data: {
   name: string;
   description?: string;

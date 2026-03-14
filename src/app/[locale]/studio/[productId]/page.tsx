@@ -170,6 +170,18 @@ export default function StudioProductPage() {
               setCurrentJob((prev) => (prev ? { ...prev, progress: p } : prev))
             }
             onDone={(url) => {
+              // Persiste dans sessionStorage pour l'affichage dans la fiche produit
+              try {
+                const key = `arshot_studio_${productId}`;
+                const existing: unknown[] = JSON.parse(sessionStorage.getItem(key) || "[]");
+                sessionStorage.setItem(
+                  key,
+                  JSON.stringify([
+                    { id: `local_${Date.now()}`, template: selectedTemplate, blobUrl: url, createdAt: new Date().toISOString() },
+                    ...existing,
+                  ])
+                );
+              } catch {}
               setCurrentJob((prev) =>
                 prev
                   ? { ...prev, status: "done", videoUrl: url, progress: 100, completedAt: new Date().toISOString() }

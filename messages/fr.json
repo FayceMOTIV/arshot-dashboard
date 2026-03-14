@@ -99,7 +99,9 @@
     "launchGeneration": "Lancer la génération 3D",
     "generationInProgress": "Génération en cours...",
     "generationReady": "Votre modèle 3D est prêt !",
-    "generationFailed": "La génération a échoué"
+    "generationFailed": "La génération a échoué",
+    "deleted": "Produit supprimé",
+    "deleteFailed": "Erreur lors de la suppression"
   },
   "productNew": {
     "title": "Nouveau produit",

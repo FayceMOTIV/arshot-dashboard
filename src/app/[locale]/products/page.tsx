@@ -3,7 +3,7 @@
 import { useEffect, useState, useMemo, useCallback, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { useAuth } from "@/hooks/useAuth";
-import { getProducts, createProduct, uploadCapture, getProductStatus } from "@/lib/api";
+import { getProducts, createProduct, uploadCapture, getProductStatus, deleteProduct } from "@/lib/api";
 import { AppShell } from "@/components/layout/app-shell";
 import { ProductCard } from "@/components/products/product-card";
 import ModelViewerElement from "@/components/products/model-viewer-element";
@@ -224,6 +224,16 @@ export default function ProductsPage() {
     resetModal();
   }, [resetModal]);
 
+  const handleDelete = useCallback(async (id: string) => {
+    try {
+      await deleteProduct(id);
+      setModels((prev) => prev.filter((m) => m.id !== id));
+      toast.success(t("deleted"));
+    } catch {
+      toast.error(t("deleteFailed"));
+    }
+  }, [t]);
+
   return (
     <AppShell>
       <div className="space-y-6">
@@ -298,7 +308,7 @@ export default function ProductsPage() {
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {filteredAndSorted.map((model) => (
-              <ProductCard key={model.id} model={model} />
+              <ProductCard key={model.id} model={model} onDelete={handleDelete} />
             ))}
           </div>
         )}

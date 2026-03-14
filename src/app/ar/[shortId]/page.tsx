@@ -3,6 +3,7 @@ import { headers } from "next/headers";
 
 interface ARPageProps {
   params: Promise<{ shortId: string }>;
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }
 
 interface ProductData {
@@ -64,8 +65,10 @@ async function fetchProductData(shortId: string): Promise<ProductData | null> {
   }
 }
 
-export default async function ARViewerPage({ params }: ARPageProps) {
+export default async function ARViewerPage({ params, searchParams }: ARPageProps) {
   const { shortId } = await params;
+  const sp = await (searchParams ?? Promise.resolve({})) as Record<string, string | string[] | undefined>;
+  const arTrue = sp["ar"] === "true";
 
   if (!/^[a-zA-Z0-9-]+$/.test(shortId)) {
     return (
@@ -99,6 +102,7 @@ export default async function ARViewerPage({ params }: ARPageProps) {
     glb: product.glbUrl ?? "",
     name: product.name,
     ...(product.usdzUrl ? { usdz: product.usdzUrl } : {}),
+    ...(arTrue ? { ar: "true" } : {}),
   });
 
   redirect(`/ar.html?${qs.toString()}`);

@@ -99,6 +99,8 @@
     "launchGeneration": "Launch 3D generation",
     "generationInProgress": "Generation in progress...",
     "generationReady": "Your 3D model is ready!",
+    "deleted": "Product deleted",
+    "deleteFailed": "Failed to delete",
     "generationFailed": "Generation failed"
   },
   "productNew": {
