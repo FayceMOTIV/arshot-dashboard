@@ -3,7 +3,7 @@
 import { useEffect, useState, useMemo, useCallback, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { useAuth } from "@/hooks/useAuth";
-import { getProducts, createProduct, uploadCapture, getProductStatus, deleteProduct } from "@/lib/api";
+import { getProducts, createProduct, uploadCapture, getProductStatus, deleteProduct, saveMockProduct, IS_MOCK } from "@/lib/api";
 import { AppShell } from "@/components/layout/app-shell";
 import { ProductCard } from "@/components/products/product-card";
 import ModelViewerElement from "@/components/products/model-viewer-element";
@@ -192,6 +192,44 @@ export default function ProductsPage() {
 
   const handleSubmit = useCallback(async () => {
     if (!productName.trim() || !videoFile) return;
+
+    // Mock mode: simulate generation locally, persist to localStorage
+    if (IS_MOCK) {
+      setModalStep("uploading");
+      setUploadProgress(20);
+      await new Promise((r) => setTimeout(r, 600));
+      setUploadProgress(50);
+      setModalStep("processing");
+      await new Promise((r) => setTimeout(r, 1200));
+      setUploadProgress(90);
+      await new Promise((r) => setTimeout(r, 600));
+
+      const DEMO_GLB = "https://modelviewer.dev/shared-assets/models/Astronaut.glb";
+      const id = `product-${Math.random().toString(36).slice(2, 10)}`;
+      const now = new Date().toISOString();
+      const mockProduct: import("@/types").ARModel = {
+        id,
+        userId: "dev-user-001",
+        name: productName.trim(),
+        status: "ready",
+        pipeline: "object_capture",
+        shortId: id.slice(-6),
+        modelUrl: DEMO_GLB,
+        glbUrl: DEMO_GLB,
+        usdzUrl: null,
+        thumbnailUrl: null,
+        qualityScore: Math.floor(75 + Math.random() * 20),
+        scanCount: 0,
+        createdAt: now,
+        updatedAt: now,
+      };
+      saveMockProduct(mockProduct);
+      setCreatedProduct(mockProduct);
+      setModels((prev) => [mockProduct, ...prev]);
+      setUploadProgress(100);
+      setModalStep("ready");
+      return;
+    }
 
     try {
       // Step 1: Create product

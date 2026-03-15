@@ -1,4 +1,5 @@
 import { getIdToken, IS_MOCK } from "@/lib/firebase";
+import { mockStore } from "@/lib/mock-store";
 
 export { IS_MOCK };
 import type {
@@ -80,22 +81,37 @@ function mapBackendProduct(raw: Record<string, unknown>): ARModel {
 // ── Products (v4 endpoints) ──
 
 export async function getProducts(): Promise<ARModel[]> {
+  if (IS_MOCK) return mockStore.getAll();
   const raw = await fetchAPI<Record<string, unknown>[]>("/api/v1/products/");
   return raw.map(mapBackendProduct);
 }
 
 export async function getProductStatus(productId: string): Promise<ARModel> {
+  if (IS_MOCK) {
+    const product = mockStore.getById(productId);
+    if (product) return product;
+    throw new Error("Produit introuvable");
+  }
   const raw = await fetchAPI<Record<string, unknown>>(`/api/v1/products/${productId}`);
   return mapBackendProduct(raw);
 }
 
 export async function deleteProduct(id: string): Promise<void> {
+  if (IS_MOCK) {
+    mockStore.delete(id);
+    return;
+  }
   const hdrs = await authHeaders();
   const resp = await fetch(`/api/v1/products/${id}`, { method: "DELETE", headers: hdrs });
   if (!resp.ok && resp.status !== 404) {
     const err = await resp.json().catch(() => ({ detail: "Erreur réseau" }));
     throw new Error(err.detail || `Erreur ${resp.status}`);
   }
+}
+
+/** Save a product to the local mock store (dev mode only). No-op in production. */
+export function saveMockProduct(product: ARModel): void {
+  if (IS_MOCK) mockStore.save(product);
 }
 
 export async function createProduct(data: {

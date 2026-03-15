@@ -4,7 +4,7 @@ import { useState, useCallback, useRef, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "@/i18n/navigation";
-import { IS_MOCK } from "@/lib/api";
+import { IS_MOCK, saveMockProduct } from "@/lib/api";
 import { AppShell } from "@/components/layout/app-shell";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -157,7 +157,9 @@ export default function NewProductPage() {
         setProgressIndex(i);
       } else {
         clearInterval(interval);
-        setProduct(makeProduct(productName, DEMO_GLB));
+        const p = makeProduct(productName, DEMO_GLB);
+        setProduct(p);
+        saveMockProduct(p);
         setTimeout(() => setStep("result"), 400);
       }
     }, 1800);
@@ -216,7 +218,9 @@ export default function NewProductPage() {
             if (pollingRef.current) clearInterval(pollingRef.current);
             clearInterval(msgInterval);
             setProgressIndex(PROGRESS_MESSAGES.length - 1);
-            setProduct(makeProduct(name.trim(), result.glbUrl, result.usdzUrl, result.thumbnailUrl));
+            const p = makeProduct(name.trim(), result.glbUrl, result.usdzUrl, result.thumbnailUrl);
+            setProduct(p);
+            saveMockProduct(p);
             setTimeout(() => setStep("result"), 800);
           } else if (result.status === "FAILED") {
             if (pollingRef.current) clearInterval(pollingRef.current);
