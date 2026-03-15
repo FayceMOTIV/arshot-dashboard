@@ -41,7 +41,8 @@
     "settings": "Paramètres",
     "billing": "Facturation",
     "prospection": "Prospection",
-    "admin": "Cockpit Admin"
+    "admin": "Cockpit Admin",
+    "compare": "Comparer"
   },
   "integrations": {
     "title": "Intégrations",
@@ -191,7 +192,13 @@
     "widgetCopy": "Copier",
     "widgetCopied": "Code copié !",
     "notFound": "Produit introuvable",
-    "notFoundDescription": "Ce produit n'existe pas ou a été supprimé."
+    "notFoundDescription": "Ce produit n'existe pas ou a été supprimé.",
+    "shareTitle": "Partager",
+    "configurator": "Personnaliser le modèle",
+    "compareWith": "Comparer",
+    "analyticsTitle": "Analytiques",
+    "woocommerce": "WooCommerce",
+    "preview": "Aperçu live"
   },
   "analytics": {
     "title": "Analytiques",
@@ -199,7 +206,10 @@
     "deviceSplit": "Répartition par appareil",
     "topProducts": "Top 10 produits",
     "conversions": "Conversions",
-    "noData": "Pas encore de données"
+    "noData": "Pas encore de données",
+    "avg3dToAr": "Taux 3D→AR",
+    "avgDuration": "Durée moyenne",
+    "referrers": "Sources de trafic"
   },
   "settings": {
     "title": "Paramètres",

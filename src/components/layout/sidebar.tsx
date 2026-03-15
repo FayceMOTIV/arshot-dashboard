@@ -16,6 +16,8 @@ import {
   CreditCard,
   Target,
   ShieldAlert,
+  Scale,
+  Store,
 } from "lucide-react";
 import { signOut } from "@/lib/firebase";
 import { useRouter } from "@/i18n/navigation";
@@ -28,6 +30,7 @@ const NAV_ITEMS = [
   { key: "prospection" as const, href: "/dashboard/prospection", icon: Target },
   { key: "integrations" as const, href: "/integrations", icon: Plug },
   { key: "analytics" as const, href: "/analytics", icon: BarChart3 },
+  { key: "compare" as const, href: "/compare", icon: Scale },
   { key: "billing" as const, href: "/dashboard/billing", icon: CreditCard },
   { key: "settings" as const, href: "/settings", icon: Settings },
 ];

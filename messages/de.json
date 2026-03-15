@@ -41,7 +41,8 @@
     "settings": "Einstellungen",
     "billing": "Abrechnung",
     "prospection": "Akquise",
-    "admin": "Admin Cockpit"
+    "admin": "Admin Cockpit",
+    "compare": "Vergleichen"
   },
   "integrations": {
     "title": "Integrationen",
@@ -191,7 +192,13 @@
     "widgetCopy": "Kopieren",
     "widgetCopied": "Code kopiert!",
     "notFound": "Produkt nicht gefunden",
-    "notFoundDescription": "Dieses Produkt existiert nicht oder wurde gelöscht."
+    "notFoundDescription": "Dieses Produkt existiert nicht oder wurde gelöscht.",
+    "shareTitle": "Teilen",
+    "configurator": "Modell anpassen",
+    "compareWith": "Vergleichen",
+    "analyticsTitle": "Analytik",
+    "woocommerce": "WooCommerce",
+    "preview": "Live-Vorschau"
   },
   "analytics": {
     "title": "Analysen",
@@ -199,7 +206,10 @@
     "deviceSplit": "Geräteverteilung",
     "topProducts": "Top 10 Produkte",
     "conversions": "Conversions",
-    "noData": "Noch keine Daten"
+    "noData": "Noch keine Daten",
+    "avg3dToAr": "3D→AR-Quote",
+    "avgDuration": "Durchschn. Dauer",
+    "referrers": "Besucherquellen"
   },
   "settings": {
     "title": "Einstellungen",

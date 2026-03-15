@@ -6,6 +6,7 @@ import { useEffect } from "react";
 import { Sidebar } from "./sidebar";
 import { Header } from "./header";
 import { Loader2 } from "lucide-react";
+import { CommandPalette } from "@/components/command-palette";
 
 interface AppShellProps {
   children: React.ReactNode;
@@ -33,6 +34,7 @@ export function AppShell({ children }: AppShellProps) {
 
   return (
     <div className="min-h-screen bg-background">
+      <CommandPalette />
       <Sidebar />
       <div className="pl-64">
         <Header />

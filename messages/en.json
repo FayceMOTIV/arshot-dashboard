@@ -41,7 +41,8 @@
     "settings": "Settings",
     "billing": "Billing",
     "prospection": "Prospection",
-    "admin": "Admin Cockpit"
+    "admin": "Admin Cockpit",
+    "compare": "Compare"
   },
   "integrations": {
     "title": "Integrations",
@@ -191,7 +192,13 @@
     "widgetCopy": "Copy",
     "widgetCopied": "Code copied!",
     "notFound": "Product not found",
-    "notFoundDescription": "This product doesn't exist or has been deleted."
+    "notFoundDescription": "This product doesn't exist or has been deleted.",
+    "shareTitle": "Share",
+    "configurator": "Customize model",
+    "compareWith": "Compare",
+    "analyticsTitle": "Analytics",
+    "woocommerce": "WooCommerce",
+    "preview": "Live Preview"
   },
   "analytics": {
     "title": "Analytics",
@@ -199,7 +206,10 @@
     "deviceSplit": "Device split",
     "topProducts": "Top 10 products",
     "conversions": "Conversions",
-    "noData": "No data yet"
+    "noData": "No data yet",
+    "avg3dToAr": "3D→AR Rate",
+    "avgDuration": "Avg. Duration",
+    "referrers": "Traffic Sources"
   },
   "settings": {
     "title": "Settings",

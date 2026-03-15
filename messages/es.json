@@ -41,7 +41,8 @@
     "settings": "Ajustes",
     "billing": "Facturación",
     "prospection": "Prospección",
-    "admin": "Panel Admin"
+    "admin": "Panel Admin",
+    "compare": "Comparar"
   },
   "integrations": {
     "title": "Integraciones",
@@ -191,7 +192,13 @@
     "widgetCopy": "Copiar",
     "widgetCopied": "¡Código copiado!",
     "notFound": "Producto no encontrado",
-    "notFoundDescription": "Este producto no existe o ha sido eliminado."
+    "notFoundDescription": "Este producto no existe o ha sido eliminado.",
+    "shareTitle": "Compartir",
+    "configurator": "Personalizar modelo",
+    "compareWith": "Comparar",
+    "analyticsTitle": "Analíticas",
+    "woocommerce": "WooCommerce",
+    "preview": "Vista previa"
   },
   "analytics": {
     "title": "Analíticas",
@@ -199,7 +206,10 @@
     "deviceSplit": "Distribución por dispositivo",
     "topProducts": "Top 10 productos",
     "conversions": "Conversiones",
-    "noData": "Aún no hay datos"
+    "noData": "Aún no hay datos",
+    "avg3dToAr": "Tasa 3D→AR",
+    "avgDuration": "Duración media",
+    "referrers": "Fuentes de tráfico"
   },
   "settings": {
     "title": "Ajustes",

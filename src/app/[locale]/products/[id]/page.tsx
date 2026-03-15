@@ -13,6 +13,13 @@ const ModelViewer = dynamic(
   () => import("@/components/products/model-viewer-element"),
   { ssr: false }
 );
+const ModelConfigurator = dynamic(
+  () =>
+    import("@/components/products/model-configurator").then(
+      (m) => m.ModelConfigurator
+    ),
+  { ssr: false }
+);
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -25,7 +32,6 @@ import {
   Check,
   Loader2,
   Layers,
-  ExternalLink,
   QrCode,
   Star,
   Calendar,
@@ -33,12 +39,16 @@ import {
   PackageOpen,
   ArrowLeft,
   Smartphone,
-  Film,
   Clapperboard,
+  Share2,
+  Sliders,
+  BarChart3,
 } from "lucide-react";
 import { toast } from "sonner";
 import { StylePreviewSection } from "@/components/style-match/style-preview-section";
 import { BreakoutVideosSection } from "@/components/products/breakout-videos-section";
+import { ProductAnalytics } from "@/components/products/product-analytics";
+import { SocialShare } from "@/components/products/social-share";
 import type { ARModel } from "@/types";
 
 function getScoreBadgeColor(score: number | null): string {
@@ -70,6 +80,7 @@ export default function ProductDetailPage() {
   const [loading, setLoading] = useState(true);
   const [copiedLink, setCopiedLink] = useState(false);
   const [copiedEmbed, setCopiedEmbed] = useState<string | null>(null);
+  const [showConfigurator, setShowConfigurator] = useState(false);
   const qrRef = useRef<HTMLDivElement>(null);
 
   const modelId = params.id as string;
@@ -152,6 +163,21 @@ export default function ProductDetailPage() {
   auto-rotate
   style="width: 100%; height: 400px;">
 </model-viewer>`;
+        case "woocommerce":
+          return `<!-- ARShot Viewer - WooCommerce -->
+[arshot id="${model?.id || ""}" name="${model?.name || ""}"]
+
+<!-- Ou via shortcode avancé -->
+[arshot_viewer product_id="${model?.id || ""}" height="400" auto_rotate="true"]`;
+        case "preview":
+          return `<iframe
+  src="${shareUrl}"
+  width="400"
+  height="500"
+  frameborder="0"
+  allow="camera;xr-spatial-tracking;gyroscope;magnetometer;accelerometer"
+  style="border-radius:12px;border:1px solid #e5e7eb;">
+</iframe>`;
         case "html":
         default:
           return `<!DOCTYPE html>
@@ -174,7 +200,7 @@ export default function ProductDetailPage() {
 </html>`;
       }
     },
-    [model]
+    [model, shareUrl]
   );
 
   const copyEmbed = useCallback(
@@ -256,7 +282,29 @@ export default function ProductDetailPage() {
                     {t("preview3d")}
                   </div>
                 )}
+                {/* Personnaliser button overlay */}
+                {model.glbUrl && (
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    className="absolute top-2 right-2 gap-1.5 text-xs shadow-md"
+                    onClick={() => setShowConfigurator((v) => !v)}
+                  >
+                    <Sliders className="h-3.5 w-3.5" />
+                    {showConfigurator ? "Fermer" : "Personnaliser"}
+                  </Button>
+                )}
               </div>
+              {/* Model Configurator panel */}
+              {showConfigurator && model.glbUrl && (
+                <div className="border-t border-border">
+                  <ModelConfigurator
+                    src={model.glbUrl}
+                    alt={model.name}
+                    iosSrc={model.usdzUrl ?? undefined}
+                  />
+                </div>
+              )}
             </CardContent>
           </Card>
 
@@ -377,6 +425,39 @@ export default function ProductDetailPage() {
         {/* Style Match Preview */}
         <StylePreviewSection productId={modelId} />
 
+        {/* Product Analytics */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 font-[family-name:var(--font-geist)]">
+              <BarChart3 className="h-5 w-5" />
+              {t("analyticsTitle") || "Analytiques"}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ProductAnalytics
+              productId={modelId}
+              scanCount={model.scanCount}
+            />
+          </CardContent>
+        </Card>
+
+        {/* Share */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 font-[family-name:var(--font-geist)]">
+              <Share2 className="h-5 w-5" />
+              {t("shareTitle") || "Partager"}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <SocialShare
+              url={shareUrl}
+              title={model.name}
+              description={`Découvrez ${model.name} en réalité augmentée ! Scannez pour le voir chez vous.`}
+            />
+          </CardContent>
+        </Card>
+
         {/* Widget Embed */}
         <Card>
           <CardHeader>
@@ -387,33 +468,78 @@ export default function ProductDetailPage() {
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="shopify">
-              <TabsList>
+              <TabsList className="flex-wrap">
                 <TabsTrigger value="shopify">{t("shopify")}</TabsTrigger>
                 <TabsTrigger value="wordpress">{t("wordpress")}</TabsTrigger>
+                <TabsTrigger value="woocommerce">
+                  {t("woocommerce") || "WooCommerce"}
+                </TabsTrigger>
                 <TabsTrigger value="html">{t("html")}</TabsTrigger>
+                <TabsTrigger value="preview">
+                  {t("preview") || "Aperçu live"}
+                </TabsTrigger>
               </TabsList>
-              {["shopify", "wordpress", "html"].map((platform) => (
-                <TabsContent key={platform} value={platform}>
-                  <div className="relative">
-                    <pre className="overflow-x-auto rounded-lg bg-muted p-4 text-xs">
-                      <code>{getEmbedCode(platform)}</code>
-                    </pre>
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      className="absolute right-2 top-2 gap-1.5"
-                      onClick={() => copyEmbed(platform)}
-                    >
-                      {copiedEmbed === platform ? (
-                        <Check className="h-3.5 w-3.5 text-emerald-500" />
-                      ) : (
-                        <Copy className="h-3.5 w-3.5" />
-                      )}
-                      {t("widgetCopy")}
-                    </Button>
-                  </div>
-                </TabsContent>
-              ))}
+              {["shopify", "wordpress", "woocommerce", "html", "preview"].map(
+                (platform) => (
+                  <TabsContent key={platform} value={platform}>
+                    {platform === "preview" ? (
+                      <div className="space-y-3">
+                        <p className="text-xs text-muted-foreground">
+                          Aperçu en direct de votre page AR publique
+                        </p>
+                        <iframe
+                          src={shareUrl}
+                          width="100%"
+                          height="400"
+                          style={{
+                            borderRadius: "12px",
+                            border: "1px solid var(--border)",
+                          }}
+                          allow="camera;xr-spatial-tracking;gyroscope;magnetometer;accelerometer"
+                          title={`AR preview — ${model.name}`}
+                        />
+                        <div className="relative">
+                          <pre className="overflow-x-auto rounded-lg bg-muted p-4 text-xs">
+                            <code>{getEmbedCode(platform)}</code>
+                          </pre>
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            className="absolute right-2 top-2 gap-1.5"
+                            onClick={() => copyEmbed(platform)}
+                          >
+                            {copiedEmbed === platform ? (
+                              <Check className="h-3.5 w-3.5 text-emerald-500" />
+                            ) : (
+                              <Copy className="h-3.5 w-3.5" />
+                            )}
+                            {t("widgetCopy")}
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="relative">
+                        <pre className="overflow-x-auto rounded-lg bg-muted p-4 text-xs">
+                          <code>{getEmbedCode(platform)}</code>
+                        </pre>
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          className="absolute right-2 top-2 gap-1.5"
+                          onClick={() => copyEmbed(platform)}
+                        >
+                          {copiedEmbed === platform ? (
+                            <Check className="h-3.5 w-3.5 text-emerald-500" />
+                          ) : (
+                            <Copy className="h-3.5 w-3.5" />
+                          )}
+                          {t("widgetCopy")}
+                        </Button>
+                      </div>
+                    )}
+                  </TabsContent>
+                )
+              )}
             </Tabs>
           </CardContent>
         </Card>
