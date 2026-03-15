@@ -49,6 +49,7 @@ import { StylePreviewSection } from "@/components/style-match/style-preview-sect
 import { BreakoutVideosSection } from "@/components/products/breakout-videos-section";
 import { ProductAnalytics } from "@/components/products/product-analytics";
 import { SocialShare } from "@/components/products/social-share";
+import { PhotoGallery } from "@/components/products/photo-gallery";
 import type { ARModel } from "@/types";
 
 function getScoreBadgeColor(score: number | null): string {
@@ -305,6 +306,13 @@ export default function ProductDetailPage() {
                   />
                 </div>
               )}
+              {/* Photo Gallery */}
+              <div className="px-4 pb-4">
+                <PhotoGallery
+                  productId={modelId}
+                  thumbnailUrl={model.thumbnailUrl}
+                />
+              </div>
             </CardContent>
           </Card>
 

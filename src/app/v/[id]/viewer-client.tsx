@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 
 interface ViewerData {
   model_id: string;
@@ -22,19 +22,33 @@ export function ViewerClient({ data, modelId }: Props) {
   const tracked = useRef(false);
   const [arOverlay, setArOverlay] = useState(false);
   const [modelLoaded, setModelLoaded] = useState(false);
+  const [isDark, setIsDark] = useState(false);
+
+  useEffect(() => {
+    // Read theme from localStorage (set by dashboard next-themes)
+    const stored = typeof window !== "undefined" ? localStorage.getItem("theme") : null;
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    setIsDark(stored === "dark" || (!stored && prefersDark));
+  }, []);
+
+  const toggleTheme = useCallback(() => {
+    setIsDark((prev) => {
+      const next = !prev;
+      localStorage.setItem("theme", next ? "dark" : "light");
+      return next;
+    });
+  }, []);
 
   useEffect(() => {
     if (tracked.current) return;
     tracked.current = true;
 
-    // Track view
     fetch("/api/v1/analytics/track", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ model_id: modelId, event: "view", referrer: document.referrer || "" }),
     }).catch(() => {});
 
-    // Load model-viewer script
     if (!document.querySelector('script[src*="model-viewer"]')) {
       const script = document.createElement("script");
       script.type = "module";
@@ -42,7 +56,6 @@ export function ViewerClient({ data, modelId }: Props) {
       document.head.appendChild(script);
     }
 
-    // Check for ?ar=true — show interstitial
     const params = new URLSearchParams(window.location.search);
     if (params.get("ar") === "true") {
       setArOverlay(true);
@@ -55,7 +68,6 @@ export function ViewerClient({ data, modelId }: Props) {
     setArOverlay(false);
     const mv = document.querySelector("model-viewer") as (HTMLElement & { activateAR(): void }) | null;
     try { mv?.activateAR(); } catch {}
-    // Track AR click
     fetch("/api/v1/analytics/track", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -65,9 +77,17 @@ export function ViewerClient({ data, modelId }: Props) {
 
   const showBranding = data.branding === "watermark" || data.branding === "badge";
 
+  // Theme values
+  const bg = isDark ? "#0A0A0A" : "#f5f5f5";
+  const headerBg = isDark ? "rgba(18,18,18,0.95)" : "rgba(255,255,255,0.9)";
+  const border = isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)";
+  const textPrimary = isDark ? "#F5F5F5" : "#111";
+  const textSecondary = isDark ? "#aaa" : "#888";
+  const viewerBg = isDark ? "#1A1A1A" : "#ffffff";
+
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: "#f5f5f5" }}>
-      {/* ── AR Auto-launch Interstitial ── */}
+    <div className="min-h-screen flex flex-col" style={{ background: bg, transition: "background 0.2s" }}>
+      {/* AR Auto-launch Interstitial */}
       {arOverlay && (
         <div
           style={{
@@ -113,7 +133,7 @@ export function ViewerClient({ data, modelId }: Props) {
             onClick={() => setArOverlay(false)}
             style={{ color: "rgba(255,255,255,0.65)", background: "none", border: "none", fontSize: "0.9rem", cursor: "pointer", padding: 8 }}
           >
-            Voir en 3D d'abord →
+            Voir en 3D d&apos;abord →
           </button>
         </div>
       )}
@@ -125,24 +145,47 @@ export function ViewerClient({ data, modelId }: Props) {
           alignItems: "center",
           justifyContent: "space-between",
           padding: "12px 20px",
-          background: "rgba(255,255,255,0.9)",
+          background: headerBg,
           backdropFilter: "blur(10px)",
-          borderBottom: "1px solid rgba(0,0,0,0.06)",
+          borderBottom: `1px solid ${border}`,
+          transition: "background 0.2s, border-color 0.2s",
         }}
       >
-        <span style={{ color: "#111", fontWeight: 600, fontSize: "0.95rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: 220 }}>
+        <span style={{ color: textPrimary, fontWeight: 600, fontSize: "0.95rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: 200, transition: "color 0.2s" }}>
           {data.name}
         </span>
-        {showBranding && (
-          <a
-            href={data.app_url}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ fontSize: "0.75rem", color: "#999", textDecoration: "none", flexShrink: 0 }}
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          {/* Theme toggle */}
+          <button
+            onClick={toggleTheme}
+            aria-label={isDark ? "Passer en mode clair" : "Passer en mode sombre"}
+            style={{
+              background: "none",
+              border: `1px solid ${border}`,
+              borderRadius: 8,
+              padding: "5px 10px",
+              cursor: "pointer",
+              color: textPrimary,
+              fontSize: "0.8rem",
+              display: "flex",
+              alignItems: "center",
+              gap: 5,
+              transition: "color 0.2s",
+            }}
           >
-            Powered by ARShot
-          </a>
-        )}
+            {isDark ? "☀️" : "🌙"}
+          </button>
+          {showBranding && (
+            <a
+              href={data.app_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ fontSize: "0.75rem", color: textSecondary, textDecoration: "none", flexShrink: 0, transition: "color 0.2s" }}
+            >
+              Powered by ARShot
+            </a>
+          )}
+        </div>
       </div>
 
       {/* Viewer */}
@@ -164,10 +207,10 @@ export function ViewerClient({ data, modelId }: Props) {
             width: "100%",
             height: "100%",
             minHeight: "calc(100dvh - 56px - 72px)",
-            background: "#ffffff",
+            background: viewerBg,
+            transition: "background 0.2s",
           }}
         >
-          {/* AR button — model-viewer le masque automatiquement si AR non supporté */}
           <button
             slot="ar-button"
             onClick={() => {
@@ -203,16 +246,17 @@ export function ViewerClient({ data, modelId }: Props) {
       <div
         style={{
           padding: "14px 20px",
-          background: "rgba(255,255,255,0.95)",
-          borderTop: "1px solid rgba(0,0,0,0.06)",
+          background: headerBg,
+          borderTop: `1px solid ${border}`,
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
+          transition: "background 0.2s, border-color 0.2s",
         }}
       >
         <div>
-          <p style={{ color: "#111", fontSize: "0.9rem", fontWeight: 600 }}>{data.name}</p>
-          <p style={{ color: "#888", fontSize: "0.75rem" }}>Expérience 3D interactive</p>
+          <p style={{ color: textPrimary, fontSize: "0.9rem", fontWeight: 600, transition: "color 0.2s" }}>{data.name}</p>
+          <p style={{ color: textSecondary, fontSize: "0.75rem", transition: "color 0.2s" }}>Expérience 3D interactive</p>
         </div>
         {showBranding && (
           <a

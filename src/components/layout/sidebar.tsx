@@ -18,6 +18,7 @@ import {
   ShieldAlert,
   Scale,
   Store,
+  ExternalLink,
 } from "lucide-react";
 import { signOut } from "@/lib/firebase";
 import { useRouter } from "@/i18n/navigation";
@@ -79,6 +80,20 @@ export function Sidebar() {
           );
         })}
       </nav>
+
+      {/* Ma Vitrine */}
+      <div className="border-t border-border px-3 pt-3 pb-0">
+        <a
+          href="/shop/demo"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors text-muted-foreground hover:bg-accent hover:text-foreground"
+        >
+          <Store className="h-5 w-5" />
+          Ma Vitrine
+          <ExternalLink className="h-3.5 w-3.5 ml-auto opacity-50" />
+        </a>
+      </div>
 
       <div className="border-t border-border px-3 pt-3 pb-1 space-y-1">
         {ADMIN_ITEMS.map(({ key, href, icon: Icon }) => {
