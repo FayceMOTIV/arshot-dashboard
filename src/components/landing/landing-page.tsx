@@ -132,15 +132,24 @@ export default function LandingPage() {
         </div>
       </header>
 
-      {/* ── Hero — produit sur podium, presque plein écran ── */}
-      <section className="relative overflow-hidden">
-        <div className="bg-aurora absolute inset-0" />
-        <div className="relative mx-auto max-w-6xl px-5 pb-10 pt-16 text-center sm:px-8 sm:pt-24">
+      {/* ── Hero plein cadre — image de fond 100vh, écriture dessus ── */}
+      <section className="relative flex min-h-[100svh] flex-col overflow-hidden">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/landing-hero-bg.jpg"
+          alt=""
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+        {/* voile pour la lisibilité + transition douce vers la suite */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#f5f5f7]/75 via-transparent to-[#f5f5f7]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_65%_55%_at_28%_30%,rgba(255,255,255,0.5),transparent_70%)]" />
+
+        <div className="relative mx-auto flex w-full max-w-6xl flex-1 flex-col px-5 pb-56 pt-24 sm:px-8 sm:pt-32 lg:pb-24">
           <p className="anim-fade-up text-sm font-semibold tracking-wide text-[#0071e3]">
             {t("heroBadge")}
           </p>
           <h1
-            className="display-tight anim-fade-up mx-auto mt-4 max-w-4xl font-semibold leading-[1.02]"
+            className="display-tight anim-fade-up mt-4 max-w-4xl font-semibold leading-[1.02]"
             style={{
               fontSize: "clamp(3rem, 8vw, 6.5rem)",
               animationDelay: "90ms",
@@ -151,57 +160,56 @@ export default function LandingPage() {
             <span className="text-gradient">{t("heroTitleB")}</span>
           </h1>
           <p
-            className="anim-fade-up mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-[#6e6e73] sm:text-xl"
+            className="anim-fade-up mt-6 max-w-xl text-lg leading-relaxed text-[#4b4b50] sm:text-xl"
             style={{ animationDelay: "180ms" }}
           >
             {t("heroPitch")}
           </p>
           <div
-            className="anim-fade-up mt-8 flex flex-wrap items-center justify-center gap-4"
+            className="anim-fade-up mt-8 flex flex-wrap items-center gap-4"
             style={{ animationDelay: "260ms" }}
           >
             <PillCta href="/products/new" big>
               {t("heroCtaPrimary")}
               <ArrowRight className="h-5 w-5" />
             </PillCta>
-            <a href="#how" className="pill inline-flex items-center gap-2 px-7 py-3.5 text-lg font-medium text-[#0071e3] transition-all hover:scale-[1.03] hover:bg-[#0071e3]/8">
+            <a href="#how" className="pill inline-flex items-center gap-2 bg-white/60 px-7 py-3.5 text-lg font-medium text-[#0071e3] backdrop-blur-md transition-all hover:scale-[1.03] hover:bg-white/80">
               {t("heroCtaSecondary")}
             </a>
           </div>
+        </div>
 
-          {/* Podium */}
-          <div
-            className="anim-reveal relative mx-auto mt-6 max-w-3xl"
-            style={{ animationDelay: "350ms" }}
-          >
-            <div className="halo-pastel absolute -inset-16 rounded-full blur-3xl" />
-            <div className="relative h-[26rem] sm:h-[30rem]">
+        {/* Carte glass flottante : le produit devient 3D + AR */}
+        <div
+          className="anim-reveal relative mx-auto -mt-52 w-[calc(100%-2.5rem)] max-w-sm lg:absolute lg:bottom-10 lg:right-10 lg:m-0 lg:w-[400px]"
+          style={{ animationDelay: "380ms" }}
+        >
+          <div className="overflow-hidden rounded-[28px] border border-white/50 bg-white/60 shadow-[0_32px_80px_-24px_rgba(0,0,0,0.3)] backdrop-blur-2xl">
+            <div className="flex items-center justify-between px-5 pt-4">
+              <p className="flex items-center gap-2 text-xs font-semibold text-[#1d1d1f]">
+                <span className="h-2 w-2 animate-pulse rounded-full bg-[#30d158]" />
+                {t("heroDemoTitle")}
+              </p>
+              <p className="text-[11px] text-[#6e6e73]">{t("heroDemoHint")}</p>
+            </div>
+            <div className="h-56 sm:h-64">
               <ModelViewer
                 src={HERO_GLB}
                 alt={t("heroDemoAlt")}
                 autoRotate
                 cameraControls
                 ar
+                variantName="midnight"
               />
             </div>
-            {/* socle */}
-            <div className="pointer-events-none mx-auto -mt-14 h-8 w-2/3 rounded-[100%] bg-black/10 blur-xl" />
-            <p className="relative text-sm text-[#6e6e73]">
-              {t("heroDemoTitle")} · {t("heroDemoHint")}
-            </p>
-          </div>
-
-          {/* QR pill */}
-          <div
-            className="anim-fade-up mx-auto mt-10 flex w-fit items-center gap-4 rounded-[28px] border border-black/6 bg-white/80 p-4 pr-6 shadow-[0_20px_50px_-20px_rgba(0,0,0,0.18)] backdrop-blur-xl"
-            style={{ animationDelay: "450ms" }}
-          >
-            <div className="rounded-2xl bg-white p-2 shadow-sm ring-1 ring-black/5">
-              <QRCodeSVG value={arDemoUrl} size={72} level="M" fgColor="#1d1d1f" />
-            </div>
-            <div className="text-left">
-              <p className="text-sm font-semibold">{t("heroQrTitle")}</p>
-              <p className="text-xs text-[#6e6e73]">{t("heroQrHint")}</p>
+            <div className="flex items-center gap-3 border-t border-black/6 bg-white/50 px-5 py-3.5">
+              <div className="rounded-xl bg-white p-1.5 shadow-sm ring-1 ring-black/5">
+                <QRCodeSVG value={arDemoUrl} size={56} level="M" fgColor="#1d1d1f" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold">{t("heroQrTitle")}</p>
+                <p className="text-xs text-[#6e6e73]">{t("heroQrHint")}</p>
+              </div>
             </div>
           </div>
         </div>
@@ -243,9 +251,10 @@ export default function LandingPage() {
               <div className="relative">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src="/landing-sneaker-studio.jpg"
+                  src="/landing-photo-produit.jpg"
                   alt={t("howBeforeAlt")}
                   className="h-72 w-full object-cover sm:h-96"
+                  style={{ filter: "saturate(.92) contrast(.97)" }}
                 />
                 <span className="pill absolute left-4 top-4 bg-white/85 px-3.5 py-1.5 text-xs font-semibold text-[#1d1d1f] backdrop-blur-md">
                   {t("howPhotoLabel")}
@@ -256,14 +265,14 @@ export default function LandingPage() {
                   <ArrowRight className="h-5 w-5" />
                 </div>
               </div>
-              <div className="relative bg-[#fbfbfd]">
+              <div className="relative bg-[#ececee]">
                 <div className="h-72 sm:h-96">
                   <ModelViewer
                     src={HERO_GLB}
                     alt={t("howAfterAlt")}
                     autoRotate
                     cameraControls
-                    variantName="beach"
+                    variantName="midnight"
                   />
                 </div>
                 <span className="pill absolute left-4 top-4 bg-[#0071e3] px-3.5 py-1.5 text-xs font-semibold text-white">
