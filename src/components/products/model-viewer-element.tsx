@@ -41,9 +41,21 @@ export default function ModelViewerElement({
     }
 
     let viewer: HTMLElement | null = null;
+    let cancelled = false;
 
-    try {
-      viewer = document.createElement("model-viewer");
+    const mount = async () => {
+      // Attendre que l'element custom soit defini avant d'en creer une instance :
+      // sinon, selon le timing du chunk, le viewer peut rester vide (reveal).
+      try {
+        await customElements.whenDefined("model-viewer");
+      } catch {
+        setError(true);
+        return;
+      }
+      if (cancelled || !containerRef.current) return;
+
+      try {
+        viewer = document.createElement("model-viewer");
       viewer.setAttribute("src", src);
       viewer.setAttribute("alt", alt);
       viewer.setAttribute("style", "width:100%;height:100%");
@@ -68,14 +80,18 @@ export default function ModelViewerElement({
         viewer.appendChild(arButton);
       }
 
-      container.appendChild(viewer);
-    } catch {
-      setError(true);
-    }
+      containerRef.current?.appendChild(viewer);
+      } catch {
+        setError(true);
+      }
+    };
+
+    mount();
 
     return () => {
-      if (viewer && container.contains(viewer)) {
-        container.removeChild(viewer);
+      cancelled = true;
+      if (viewer && viewer.parentNode) {
+        viewer.parentNode.removeChild(viewer);
       }
     };
   }, [src, alt, iosSrc, autoRotate, cameraControls, ar, variantName]);
