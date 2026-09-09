@@ -29,7 +29,8 @@ export default function ModelViewerElement({
     if (!container) return;
 
     // Load model-viewer script once (v3.4.0 stable)
-    if (!document.querySelector('script[src*="model-viewer"]')) {
+    // Match the CDN URL exactly — app chunks also contain "model-viewer" in their name.
+    if (!document.querySelector('script[src*="ajax/libs/model-viewer"]')) {
       const script = document.createElement("script");
       script.type = "module";
       script.src =

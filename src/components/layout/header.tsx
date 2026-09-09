@@ -2,7 +2,7 @@
 
 import { useTheme } from "next-themes";
 import { useAuth } from "@/hooks/useAuth";
-import { Sun, Moon, Globe } from "lucide-react";
+import { Sun, Moon, Globe, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -17,7 +17,7 @@ import type { Locale } from "@/types";
 
 const locales: Locale[] = ["fr", "en", "es", "de"];
 
-export function Header() {
+export function Header({ onMenu }: { onMenu?: () => void }) {
   const { user } = useAuth();
   const { theme, setTheme } = useTheme();
   const router = useRouter();
@@ -30,7 +30,19 @@ export function Header() {
     .toUpperCase() || user?.email?.[0]?.toUpperCase() || "?";
 
   return (
-    <header className="glass sticky top-0 z-30 flex h-16 items-center justify-end gap-3 border-x-0 border-t-0 px-6">
+    <header className="glass sticky top-0 z-30 flex h-16 items-center justify-end gap-3 border-x-0 border-t-0 px-4 sm:px-6">
+      {/* Mobile menu */}
+      {onMenu && (
+        <Button
+          variant="ghost"
+          size="icon"
+          className="mr-auto lg:hidden"
+          onClick={onMenu}
+          aria-label="Menu"
+        >
+          <Menu className="h-5 w-5" />
+        </Button>
+      )}
       {/* Language switcher */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>

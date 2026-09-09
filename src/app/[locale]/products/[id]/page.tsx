@@ -269,7 +269,33 @@ export default function ProductDetailPage() {
           </TabsContent>
 
           {/* ── Partager ── */}
-          <TabsContent value="share" className="pt-4">
+          <TabsContent value="share" className="space-y-6 pt-4">
+            {model.glbUrl && (
+              <div className="glass border-gradient relative overflow-hidden rounded-3xl">
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border px-6 py-4">
+                  <div>
+                    <p className="flex items-center gap-2 font-semibold">
+                      <Smartphone className="h-4 w-4 text-primary" />
+                      {t("customerViewTitle")}
+                    </p>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      {t("customerViewDesc")}
+                    </p>
+                  </div>
+                </div>
+                <div className="relative h-72 sm:h-96">
+                  <div className="bg-aurora absolute inset-0" />
+                  <ModelViewer
+                    src={model.glbUrl}
+                    alt={model.name}
+                    iosSrc={model.usdzUrl ?? undefined}
+                    autoRotate
+                    cameraControls
+                    ar
+                  />
+                </div>
+              </div>
+            )}
             <div className="grid gap-6 md:grid-cols-2">
               <div className="glass flex flex-col items-center gap-4 rounded-2xl p-8">
                 <p className="flex items-center gap-2 text-sm font-semibold">

@@ -13,9 +13,11 @@ import {
   Box,
   Clapperboard,
   Plug,
+  X,
 } from "lucide-react";
 import { signOut } from "@/lib/firebase";
 import { useRouter } from "@/i18n/navigation";
+import { useEffect } from "react";
 
 const NAV_ITEMS = [
   { key: "dashboard" as const, href: "/dashboard", icon: LayoutDashboard },
@@ -26,19 +28,29 @@ const NAV_ITEMS = [
   { key: "settings" as const, href: "/settings", icon: Settings },
 ];
 
-export function Sidebar() {
+interface SidebarProps {
+  mobileOpen?: boolean;
+  onClose?: () => void;
+}
+
+export function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
   const t = useTranslations("nav");
   const tAuth = useTranslations("auth");
   const pathname = usePathname();
   const router = useRouter();
+
+  useEffect(() => {
+    onClose?.();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname]);
 
   const handleLogout = async () => {
     await signOut();
     router.push("/login");
   };
 
-  return (
-    <aside className="glass fixed left-0 top-0 z-40 flex h-screen w-64 flex-col border-y-0 border-l-0">
+  const nav = (
+    <>
       <div className="flex h-16 items-center gap-2.5 border-b border-border px-6">
         <div className="bg-brand-gradient flex h-8 w-8 items-center justify-center rounded-lg glow-primary">
           <Box className="h-4 w-4 text-white" />
@@ -46,6 +58,15 @@ export function Sidebar() {
         <span className="display-tight text-xl font-bold tracking-tight">
           AR<span className="text-gradient">Shot</span>
         </span>
+        {onClose && (
+          <button
+            className="ml-auto rounded-lg p-1.5 text-muted-foreground hover:bg-accent lg:hidden"
+            onClick={onClose}
+            aria-label="Fermer"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        )}
       </div>
 
       <nav className="flex-1 space-y-1 px-3 py-4">
@@ -83,6 +104,30 @@ export function Sidebar() {
           {tAuth("logout")}
         </button>
       </div>
-    </aside>
+    </>
+  );
+
+  return (
+    <>
+      {/* Desktop */}
+      <aside className="glass fixed left-0 top-0 z-40 hidden h-screen w-64 flex-col border-y-0 border-l-0 lg:flex">
+        {nav}
+      </aside>
+      {/* Mobile drawer */}
+      {mobileOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm lg:hidden"
+          onClick={onClose}
+        />
+      )}
+      <aside
+        className={cn(
+          "glass fixed left-0 top-0 z-50 flex h-screen w-64 flex-col border-y-0 border-l-0 transition-transform duration-300 lg:hidden",
+          mobileOpen ? "translate-x-0" : "-translate-x-full"
+        )}
+      >
+        {nav}
+      </aside>
+    </>
   );
 }

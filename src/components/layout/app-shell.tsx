@@ -2,7 +2,7 @@
 
 import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "@/i18n/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Sidebar } from "./sidebar";
 import { Header } from "./header";
 import { Box } from "lucide-react";
@@ -14,6 +14,7 @@ interface AppShellProps {
 export function AppShell({ children }: AppShellProps) {
   const { user, loading } = useAuth();
   const router = useRouter();
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -38,10 +39,10 @@ export function AppShell({ children }: AppShellProps) {
     <div className="relative min-h-screen bg-background">
       <div className="bg-aurora pointer-events-none fixed inset-0" />
       <div className="bg-noise pointer-events-none fixed inset-0" />
-      <Sidebar />
-      <div className="relative pl-64">
-        <Header />
-        <main className="p-6 lg:p-8">{children}</main>
+      <Sidebar mobileOpen={mobileOpen} onClose={() => setMobileOpen(false)} />
+      <div className="relative lg:pl-64">
+        <Header onMenu={() => setMobileOpen(true)} />
+        <main className="p-4 sm:p-6 lg:p-8">{children}</main>
       </div>
     </div>
   );
