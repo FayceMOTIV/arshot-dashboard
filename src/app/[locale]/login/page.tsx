@@ -118,13 +118,13 @@ export default function LoginPage() {
               <figure className="w-1/2 space-y-2">
                 <div className="aspect-square w-full overflow-hidden rounded-xl bg-white">
                   <ModelViewerElement
-                    src="/demo/sneaker-rouge.glb"
+                    src="/demo/sneaker-rouge-pro.glb"
                     alt="Sneaker Rouge — modèle 3D généré par ARShot"
                     className="h-full w-full"
                   />
                 </div>
                 <figcaption className="text-center text-xs text-muted-foreground">
-                  → modèle 3D réel, généré en 43 s
+                  → modèle 3D réel, généré en 2 min 30 (tier Pro)
                 </figcaption>
               </figure>
             </div>

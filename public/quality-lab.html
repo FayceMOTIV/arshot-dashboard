@@ -130,12 +130,39 @@
     Chaque panneau simule un fournisseur de génération 3D. Les métriques sous les viewers (triangles, textures PBR, poids) sont celles que le parseur GLB d'ARShot mesure réellement sur chaque fichier généré.
   </div>
 
+  <div class="rule-banner" style="border-color: rgba(125,122,255,.35);">
+    <strong>⚡ Mesuré en réel — même photo, deux tiers fal.ai (9 sept. 2026).</strong><br>
+    Sneaker rouge (photo Unsplash) passée dans le vrai pipeline ARShot. Verdict :
+    <span class="rule">l'écart est flagrant → le tier rapide seul n'est pas vendable ; le tier Pro est photoréaliste mais demande ~2 min 20 et ~0,39 $.</span>
+  </div>
+
+  <div class="grid" id="real-grid"></div>
+
+  <div class="rule-banner" style="margin-top:28px;">
+    <strong>Référentiel d'échantillons glTF (Khronos)</strong> — pour calibrer l'œil sur des modèles de complexité connue.
+  </div>
+
   <div class="grid" id="grid"></div>
 
-  <footer>Propulsé par <b>ARShot</b> — Laboratoire interne d'arbitrage qualité · modèles de démonstration glTF (Khronos / modelviewer.dev)</footer>
+  <footer>Propulsé par <b>ARShot</b> — Laboratoire interne d'arbitrage qualité · modèles de démonstration glTF (Khronos / modelviewer.dev) · tiers mesurés sur fal.ai le 9 sept. 2026</footer>
 </main>
 
 <script>
+  const REAL_PANELS = [
+    {
+      provider: "Rapide — fal-ai/trellis (mesuré réel)", tier: "", price: "$0,038 tout compris · 43 s",
+      subject: "Sneaker Rouge — 10 532 triangles",
+      src: "/demo/sneaker-rouge.glb",
+      tris: "10 532", textures: "1", size: "1,2 Mo", note: "⚠️ Couleurs perdues (rendu quasi noir) — forme correcte uniquement"
+    },
+    {
+      provider: "Pro — fal-ai/hunyuan-3d v3.1 (mesuré réel)", tier: "tier-pro", price: "$0,393 · 2 min 20",
+      subject: "Sneaker Rouge — 500 000 triangles (optimisé 60k)",
+      src: "/demo/sneaker-rouge-pro.glb",
+      tris: "500 000 brut / 60 000 optimisé", textures: "1 (PBR, webp 1024)", size: "30 Mo brut → 5,2 Mo optimisé", note: "✅ Photoréaliste — couleurs, logo, semelle fidèles à la photo"
+    },
+  ];
+
   const K = "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/main/2.0/";
   const PANELS = [
     {
@@ -164,11 +191,12 @@
     },
   ];
 
-  const grid = document.getElementById("grid");
-  for (const p of PANELS) {
-    const el = document.createElement("section");
-    el.className = "panel";
-    el.innerHTML = `
+  function renderPanels(list, targetId) {
+    const grid = document.getElementById(targetId);
+    for (const p of list) {
+      const el = document.createElement("section");
+      el.className = "panel";
+      el.innerHTML = `
       <div class="panel-head">
         <span class="provider ${p.tier}">${p.provider}</span>
         <span class="price">${p.price}</span>
@@ -176,6 +204,7 @@
       </div>
       <model-viewer src="${p.src}" camera-controls auto-rotate ar
         ar-modes="webxr scene-viewer quick-look" shadow-intensity="1"
+        environment-image="neutral"
         exposure="1" loading="eager" alt="${p.subject}"></model-viewer>
       <div class="metrics">
         <table>
@@ -188,11 +217,14 @@
       </div>
       <button class="ar-btn">Voir en AR</button>
     `;
-    el.querySelector(".ar-btn").addEventListener("click", () => {
-      el.querySelector("model-viewer").activateAR();
-    });
-    grid.appendChild(el);
+      el.querySelector(".ar-btn").addEventListener("click", () => {
+        el.querySelector("model-viewer").activateAR();
+      });
+      grid.appendChild(el);
+    }
   }
+  renderPanels(REAL_PANELS, "real-grid");
+  renderPanels(PANELS, "grid");
 </script>
 </body>
 </html>
