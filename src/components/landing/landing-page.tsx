@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { QRCodeSVG } from "qrcode.react";
@@ -19,6 +19,10 @@ import {
   ArrowRight,
   Check,
   Box,
+  BadgeCheck,
+  Cpu,
+  Plug,
+  FlaskConical,
 } from "lucide-react";
 
 const ModelViewer = dynamic(
@@ -47,6 +51,37 @@ const USECASE_IMAGES = [
   "/landing-lamp.jpg",
 ];
 const PLAN_KEYS = ["free", "pro", "business"] as const;
+const WORKSHOP_ICONS = [Package, ScanLine, BadgeCheck, Cpu, Smartphone, Plug];
+
+function ArDemoVideo() {
+  const ref = useRef<HTMLVideoElement>(null);
+  useEffect(() => {
+    const v = ref.current;
+    if (!v) return;
+    const tryPlay = () => v.play().catch(() => {});
+    tryPlay();
+    const io = new IntersectionObserver(
+      (entries) => entries.forEach((e) => e.isIntersecting && tryPlay()),
+      { threshold: 0.1 }
+    );
+    io.observe(v);
+    return () => io.disconnect();
+  }, []);
+  return (
+    <video
+      ref={ref}
+      className="h-full w-full object-cover"
+      autoPlay
+      muted
+      loop
+      playsInline
+      preload="auto"
+    >
+      <source src="/ar-demo.webm" type="video/webm" />
+      <source src="/ar-demo.mp4" type="video/mp4" />
+    </video>
+  );
+}
 
 function Logo() {
   return (
@@ -344,6 +379,90 @@ export default function LandingPage() {
               </div>
             );
           })}
+        </div>
+      </section>
+
+      {/* ── L'AR en action — vidéo ── */}
+      <section className="mx-auto max-w-6xl px-5 py-16 sm:px-8">
+        <div className="anim-fade-up mb-12 max-w-3xl">
+          <h2
+            className="display-tight font-semibold leading-tight"
+            style={{ fontSize: "clamp(2.25rem, 5vw, 3.75rem)" }}
+          >
+            {t("arVideoTitle")}
+          </h2>
+          <p className="mt-4 text-xl leading-relaxed text-[#6e6e73]">
+            {t("arVideoSubtitle")}
+          </p>
+        </div>
+        <div className="grid items-stretch gap-5 lg:grid-cols-[1.35fr_1fr]">
+          <div className="anim-fade-up group relative overflow-hidden rounded-[28px] bg-black shadow-[0_32px_80px_-30px_rgba(0,0,0,0.35)] ring-1 ring-black/5">
+            <ArDemoVideo />
+            <span className="pill absolute bottom-4 left-4 bg-black/45 px-3.5 py-1.5 text-xs font-medium text-white backdrop-blur-md">
+              {t("arVideoCaption")}
+            </span>
+          </div>
+          <div
+            className="anim-fade-up flex flex-col overflow-hidden rounded-[28px] bg-white shadow-[0_24px_60px_-30px_rgba(0,0,0,0.15)] ring-1 ring-black/5"
+            style={{ animationDelay: "120ms" }}
+          >
+            <div className="flex items-center justify-between px-6 pt-5">
+              <p className="text-sm font-semibold">{t("arVideoRotate")}</p>
+              <p className="text-xs text-[#6e6e73]">{t("heroDemoHint")}</p>
+            </div>
+            <div className="min-h-72 flex-1">
+              <ModelViewer
+                src="/demo-waterbottle.glb"
+                alt={t("arVideoRotate")}
+                autoRotate
+                cameraControls
+                ar
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Tout un atelier ── */}
+      <section className="mx-auto max-w-6xl px-5 py-16 sm:px-8">
+        <div className="anim-fade-up mb-12 max-w-2xl">
+          <h2
+            className="display-tight font-semibold leading-tight"
+            style={{ fontSize: "clamp(2.25rem, 5vw, 3.75rem)" }}
+          >
+            {t("workshopTitle")}
+          </h2>
+          <p className="mt-3 text-xl text-[#6e6e73]">{t("workshopSubtitle")}</p>
+        </div>
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {WORKSHOP_ICONS.map((Icon, i) => (
+            <div
+              key={i}
+              className="anim-fade-up flex items-start gap-4 rounded-[28px] bg-white p-7 shadow-[0_24px_60px_-30px_rgba(0,0,0,0.15)] ring-1 ring-black/5 transition-transform duration-300 hover:-translate-y-1.5"
+              style={{ animationDelay: `${i * 90}ms` }}
+            >
+              <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl ${FEATURE_TINTS[i]}`}>
+                <Icon className="h-5 w-5" />
+              </div>
+              <div>
+                <h3 className="display-tight font-semibold">{t(`tool${i + 1}Title`)}</h3>
+                <p className="mt-1.5 text-sm leading-relaxed text-[#6e6e73]">
+                  {t(`tool${i + 1}Desc`)}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="anim-fade-up mt-8 text-center">
+          <a
+            href="/quality-lab.html"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="pill inline-flex items-center gap-2 border border-black/8 bg-white px-5 py-2.5 text-sm font-medium text-[#0071e3] transition-all hover:scale-[1.03] hover:bg-[#0071e3]/6"
+          >
+            <FlaskConical className="h-4 w-4" />
+            {t("qualityLabLink")}
+          </a>
         </div>
       </section>
 

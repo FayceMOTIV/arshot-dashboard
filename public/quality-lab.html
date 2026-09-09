@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>ARShot — Laboratoire qualité</title>
+  <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg: #f5f5f7;
+      --card: #ffffff;
+      --border: rgba(0, 0, 0, 0.06);
+      --electric: #0071E3;
+      --violet: #7D7AFF;
+      --text: #1d1d1f;
+      --muted: #6e6e73;
+      --green: #10B981;
+      --amber: #F59E0B;
+    }
+    html, body { background: var(--bg); }
+    body {
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    body::before {
+      content: "";
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background:
+        radial-gradient(ellipse 55% 45% at 12% 0%, rgba(168, 216, 255, 0.5), transparent 70%),
+        radial-gradient(ellipse 45% 40% at 85% 8%, rgba(216, 204, 255, 0.45), transparent 70%),
+        radial-gradient(ellipse 40% 35% at 60% 45%, rgba(255, 224, 204, 0.3), transparent 75%);
+    }
+    body::after {
+      content: "";
+      position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: 0.05;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+    main { position: relative; z-index: 1; max-width: 1280px; margin: 0 auto; padding: 24px 20px 48px; }
+
+    .brand { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 8px 0 18px; }
+    .brand-mark {
+      width: 30px; height: 30px; border-radius: 9px;
+      background: linear-gradient(135deg, var(--electric), var(--violet));
+      box-shadow: 0 6px 18px -6px rgba(0, 113, 227, 0.4);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 15px; color: white;
+    }
+    .brand span { font-weight: 700; font-size: 18px; letter-spacing: -0.02em; }
+
+    h1 { text-align: center; font-size: 30px; font-weight: 700; letter-spacing: -0.03em; padding-bottom: 16px; }
+    h1 em { font-style: normal; background: linear-gradient(90deg, var(--electric), var(--violet)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+    .rule-banner {
+      max-width: 860px; margin: 0 auto 28px;
+      border-radius: 18px; padding: 16px 22px;
+      background: var(--card); border: 1px solid var(--border);
+      box-shadow: 0 16px 40px -24px rgba(0, 0, 0, 0.12);
+      font-size: 14.5px; line-height: 1.55; color: var(--muted);
+    }
+    .rule-banner strong { color: var(--text); }
+    .rule-banner .rule { color: var(--text); font-weight: 600; }
+
+    .grid {
+      display: grid; gap: 18px;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    }
+    .panel {
+      border-radius: 22px; overflow: hidden;
+      background: var(--card); border: 1px solid var(--border);
+      box-shadow: 0 20px 48px -28px rgba(0, 0, 0, 0.14);
+      display: flex; flex-direction: column;
+    }
+    .panel-head { padding: 14px 16px 10px; }
+    .provider {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;
+      padding: 4px 10px; border-radius: 999px;
+      background: #e8f0fe; color: #0071e3;
+      border: 1px solid rgba(0, 113, 227, 0.18);
+    }
+    .tier-pro { background: #f0ebff; color: #6d5bd0; border-color: rgba(125, 122, 255, 0.25); }
+    .price { float: right; font-size: 12.5px; color: var(--muted); font-weight: 600; padding-top: 5px; }
+    .subject { font-size: 16.5px; font-weight: 650; letter-spacing: -0.01em; padding-top: 10px; }
+
+    model-viewer {
+      width: 100%; height: 300px;
+      background: radial-gradient(circle at 50% 40%, #f0f0f4, #fafafc 75%);
+      outline: none;
+    }
+
+    .metrics { padding: 12px 16px 14px; border-top: 1px solid var(--border); font-size: 12.5px; }
+    .metrics table { width: 100%; border-collapse: collapse; }
+    .metrics td { padding: 3px 0; }
+    .metrics td:first-child { color: var(--muted); }
+    .metrics td:last-child { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+    .measured {
+      margin-top: 9px; font-size: 10.5px; color: var(--muted);
+      display: flex; align-items: center; gap: 6px;
+    }
+    .measured::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
+
+    .ar-btn {
+      margin: 0 16px 16px; padding: 11px; border: 0; border-radius: 13px; cursor: pointer;
+      background: linear-gradient(135deg, var(--electric), var(--violet));
+      color: white; font-weight: 650; font-size: 13.5px; font-family: inherit;
+      transition: opacity .15s;
+    }
+    .ar-btn:hover { opacity: .88; }
+
+    footer { text-align: center; color: var(--muted); font-size: 11.5px; padding-top: 26px; }
+    footer b { color: var(--text); font-weight: 600; }
+
+    @media (max-width: 640px) {
+      h1 { font-size: 23px; }
+      model-viewer { height: 260px; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <div class="brand"><span class="brand-mark">A</span><span>ARShot</span></div>
+  <h1>Laboratoire <em>qualité</em></h1>
+
+  <div class="rule-banner">
+    <strong>Règle d'arbitrage fournisseurs.</strong><br>
+    <span class="rule">Si l'écart de qualité entre deux fournisseurs est invisible pour le client final sur téléphone → on prend le moins cher. S'il est flagrant → on paie la qualité ou on change d'outil.</span><br>
+    Chaque panneau simule un fournisseur de génération 3D. Les métriques sous les viewers (triangles, textures PBR, poids) sont celles que le parseur GLB d'ARShot mesure réellement sur chaque fichier généré.
+  </div>
+
+  <div class="grid" id="grid"></div>
+
+  <footer>Propulsé par <b>ARShot</b> — Laboratoire interne d'arbitrage qualité · modèles de démonstration glTF (Khronos / modelviewer.dev)</footer>
+</main>
+
+<script>
+  const K = "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/main/2.0/";
+  const PANELS = [
+    {
+      provider: "Provider A — génération rapide", tier: "", price: "~0,04 $",
+      subject: "Avocado — 682 triangles (basse densité)",
+      src: K + "Avocado/glTF-Binary/Avocado.glb",
+      tris: "682", textures: "3 (PBR)", size: "7,9 Mo", note: "Géométrie simplifiée — acceptable sur petit écran"
+    },
+    {
+      provider: "Provider B — standard", tier: "", price: "~0,25 $",
+      subject: "BoomBox — 6 036 triangles",
+      src: K + "BoomBox/glTF-Binary/BoomBox.glb",
+      tris: "6 036", textures: "4 (PBR)", size: "10,4 Mo", note: "Bon compromis coût / rendu"
+    },
+    {
+      provider: "Provider C — pro multi-vues", tier: "tier-pro", price: "~0,60 $",
+      subject: "DamagedHelmet — 15 452 triangles, PBR complet",
+      src: K + "DamagedHelmet/glTF-Binary/DamagedHelmet.glb",
+      tris: "15 452", textures: "5 (PBR + émissif + occlusion)", size: "3,6 Mo optimisé", note: "Référence qualité — métaux et normales visibles"
+    },
+    {
+      provider: "Provider D — premium dense", tier: "tier-pro", price: "~0,90 $",
+      subject: "Corset — 18 324 triangles",
+      src: K + "Corset/glTF-Binary/Corset.glb",
+      tris: "18 324", textures: "3 (PBR)", size: "13,0 Mo", note: "Très détaillé mais lourd — à surveiller sur mobile"
+    },
+  ];
+
+  const grid = document.getElementById("grid");
+  for (const p of PANELS) {
+    const el = document.createElement("section");
+    el.className = "panel";
+    el.innerHTML = `
+      <div class="panel-head">
+        <span class="provider ${p.tier}">${p.provider}</span>
+        <span class="price">${p.price}</span>
+        <div class="subject">${p.subject}</div>
+      </div>
+      <model-viewer src="${p.src}" camera-controls auto-rotate ar
+        ar-modes="webxr scene-viewer quick-look" shadow-intensity="1"
+        exposure="1" loading="eager" alt="${p.subject}"></model-viewer>
+      <div class="metrics">
+        <table>
+          <tr><td>Triangles</td><td>${p.tris}</td></tr>
+          <tr><td>Textures</td><td>${p.textures}</td></tr>
+          <tr><td>Poids fichier</td><td>${p.size}</td></tr>
+          <tr><td>Lecture</td><td style="font-weight:500;color:var(--muted)">${p.note}</td></tr>
+        </table>
+        <div class="measured">Mesuré par le parseur GLB ARShot (trimesh + pygltflib, backend v4.0)</div>
+      </div>
+      <button class="ar-btn">Voir en AR</button>
+    `;
+    el.querySelector(".ar-btn").addEventListener("click", () => {
+      el.querySelector("model-viewer").activateAR();
+    });
+    grid.appendChild(el);
+  }
+</script>
+</body>
+</html>

@@ -20,6 +20,7 @@ import {
   PackageOpen,
   BarChart3,
   Smartphone,
+  FlaskConical,
 } from "lucide-react";
 import type { ARModel } from "@/types";
 import { cn } from "@/lib/utils";
@@ -103,7 +104,7 @@ export default function DashboardPage() {
           <h2 className="display-tight anim-fade-up text-xl font-bold">
             {t("quickActions")}
           </h2>
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
             {[
               {
                 icon: Plus,
@@ -111,6 +112,7 @@ export default function DashboardPage() {
                 desc: t("qaCreateDesc"),
                 href: "/products/new" as const,
                 primary: true,
+                external: false,
               },
               {
                 icon: QrCode,
@@ -118,6 +120,7 @@ export default function DashboardPage() {
                 desc: t("qaQrDesc"),
                 href: "/products" as const,
                 primary: false,
+                external: false,
               },
               {
                 icon: PackageOpen,
@@ -125,6 +128,7 @@ export default function DashboardPage() {
                 desc: t("qaExportDesc"),
                 href: demoProduct ? (`/products/${demoProduct.id}` as const) : ("/products" as const),
                 primary: false,
+                external: false,
               },
               {
                 icon: BarChart3,
@@ -132,9 +136,18 @@ export default function DashboardPage() {
                 desc: t("qaStatsDesc"),
                 href: "/analytics" as const,
                 primary: false,
+                external: false,
               },
-            ].map((action, i) => (
-              <Link key={action.label} href={action.href}>
+              {
+                icon: FlaskConical,
+                label: t("qaLab"),
+                desc: t("qaLabDesc"),
+                href: "/quality-lab.html" as const,
+                primary: false,
+                external: true,
+              },
+            ].map((action, i) => {
+              const card = (
                 <div
                   className={cn(
                     "hover-lift anim-fade-up flex h-full items-start gap-4 rounded-2xl p-5",
@@ -164,8 +177,17 @@ export default function DashboardPage() {
                     </p>
                   </div>
                 </div>
-              </Link>
-            ))}
+              );
+              return action.external ? (
+                <a key={action.label} href={action.href} target="_blank" rel="noopener noreferrer">
+                  {card}
+                </a>
+              ) : (
+                <Link key={action.label} href={action.href}>
+                  {card}
+                </Link>
+              );
+            })}
           </div>
         </section>
 

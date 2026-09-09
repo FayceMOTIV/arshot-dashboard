@@ -98,7 +98,9 @@
     "customerViewCta": "Ouvrir l'expérience AR",
     "customerViewDemo": "Exemple de rendu client",
     "emptyDemoTitle": "Voici le rendu pour vos clients",
-    "emptyDemoDesc": "Créez votre premier produit en 60 secondes — une photo suffit."
+    "emptyDemoDesc": "Créez votre premier produit en 60 secondes — une photo suffit.",
+    "qaLab": "Labo qualité",
+    "qaLabDesc": "Vérification automatique des modèles 3D"
   },
   "products": {
     "title": "Mes produits",
@@ -480,6 +482,25 @@
     "finalCta": "Essayer gratuitement",
     "footerRights": "© 2026 ARShot. Tous droits réservés.",
     "howPhotoLabel": "La photo",
-    "howModelLabel": "Le modèle 3D généré"
+    "howModelLabel": "Le modèle 3D généré",
+    "arVideoTitle": "Vos clients voient vos produits chez eux. Sans application.",
+    "arVideoSubtitle": "Ils scannent le QR code — le produit apparaît en réalité augmentée, posé sur leur table, à l'échelle réelle.",
+    "arVideoCaption": "Démo enregistrée en conditions réelles — rotation en boucle",
+    "arVideoRotate": "Tournez le modèle",
+    "workshopTitle": "Tout un atelier, pas juste un viewer",
+    "workshopSubtitle": "Sous le capot : la chaîne complète, de la photo au client.",
+    "tool1Title": "Export Amazon 1-clic",
+    "tool1Desc": "GLB conforme aux specs « View in 3D » d'Amazon, avec vérification automatique : triangles, textures, poids du fichier.",
+    "tool2Title": "QR intelligent",
+    "tool2Desc": "QR dynamique par produit + statistiques de scans : qui scanne, d'où, sur quel appareil.",
+    "tool3Title": "Qualité garantie",
+    "tool3Desc": "Chaque modèle est mesuré automatiquement (polycount, résolution de texture) — qualité insuffisante = régénération.",
+    "tool4Title": "Multi-moteurs 3D",
+    "tool4Desc": "Pipeline branché sur plusieurs moteurs IA — vous n'êtes enfermé chez aucun fournisseur.",
+    "tool5Title": "iOS + Android natif",
+    "tool5Desc": "Quick Look (USDZ) sur iPhone, Scene Viewer sur Android — zéro application à installer.",
+    "tool6Title": "Embed & plugins",
+    "tool6Desc": "iframe universel, intégration Shopify et WordPress/WooCommerce en un copier-coller.",
+    "qualityLabLink": "Ouvrir le Laboratoire qualité"
   }
 }

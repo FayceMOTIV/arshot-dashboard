@@ -98,7 +98,9 @@
     "customerViewCta": "Open the AR experience",
     "customerViewDemo": "Sample customer render",
     "emptyDemoTitle": "This is what your customers will see",
-    "emptyDemoDesc": "Create your first product in 60 seconds — one photo is enough."
+    "emptyDemoDesc": "Create your first product in 60 seconds — one photo is enough.",
+    "qaLab": "Quality lab",
+    "qaLabDesc": "Automatic 3D model checks"
   },
   "products": {
     "title": "My products",
@@ -480,6 +482,25 @@
     "finalCta": "Try for free",
     "footerRights": "© 2026 ARShot. All rights reserved.",
     "howPhotoLabel": "The photo",
-    "howModelLabel": "The generated 3D model"
+    "howModelLabel": "The generated 3D model",
+    "arVideoTitle": "Your customers see your products in their home. No app.",
+    "arVideoSubtitle": "They scan the QR code — the product appears in augmented reality, on their table, at real scale.",
+    "arVideoCaption": "Demo recorded in real conditions — looping rotation",
+    "arVideoRotate": "Spin the model",
+    "workshopTitle": "A full workshop, not just a viewer",
+    "workshopSubtitle": "Under the hood: the complete chain, from photo to customer.",
+    "tool1Title": "1-click Amazon export",
+    "tool1Desc": "GLB compliant with Amazon's “View in 3D” specs, with automatic checks: triangles, textures, file weight.",
+    "tool2Title": "Smart QR",
+    "tool2Desc": "Dynamic QR per product + scan analytics: who scans, from where, on which device.",
+    "tool3Title": "Guaranteed quality",
+    "tool3Desc": "Every model is measured automatically (polycount, texture resolution) — insufficient quality means regeneration.",
+    "tool4Title": "Multi-engine 3D",
+    "tool4Desc": "Pipeline connected to several AI engines — you're never locked into one provider.",
+    "tool5Title": "Native iOS + Android",
+    "tool5Desc": "Quick Look (USDZ) on iPhone, Scene Viewer on Android — zero app to install.",
+    "tool6Title": "Embed & plugins",
+    "tool6Desc": "Universal iframe, Shopify and WordPress/WooCommerce integration in one copy-paste.",
+    "qualityLabLink": "Open the Quality Lab"
   }
 }
