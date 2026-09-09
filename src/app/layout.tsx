@@ -1,5 +1,14 @@
 import type { Metadata } from "next";
+import { Instrument_Serif } from "next/font/google";
 import "./globals.css";
+
+const instrumentSerif = Instrument_Serif({
+  weight: "400",
+  style: ["normal", "italic"],
+  subsets: ["latin"],
+  variable: "--font-serif-display",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "ARShot — Vos produits en 3D et en AR",
@@ -13,7 +22,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html suppressHydrationWarning>
+    <html suppressHydrationWarning className={instrumentSerif.variable}>
       <body className="font-sans antialiased">{children}</body>
     </html>
   );

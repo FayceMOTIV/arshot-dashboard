@@ -119,7 +119,7 @@ export default function SettingsPage() {
                 <Button
                   variant={theme === "light" ? "default" : "outline"}
                   size="sm"
-                  className={theme === "light" ? "gap-2 bg-[#0071E3] text-white" : "gap-2"}
+                  className={theme === "light" ? "gap-2 bg-[#C2410C] text-white" : "gap-2"}
                   onClick={() => setTheme("light")}
                 >
                   <Sun className="h-4 w-4" />
@@ -128,7 +128,7 @@ export default function SettingsPage() {
                 <Button
                   variant={theme === "dark" ? "default" : "outline"}
                   size="sm"
-                  className={theme === "dark" ? "gap-2 bg-[#0071E3] text-white" : "gap-2"}
+                  className={theme === "dark" ? "gap-2 bg-[#C2410C] text-white" : "gap-2"}
                   onClick={() => setTheme("dark")}
                 >
                   <Moon className="h-4 w-4" />
@@ -137,7 +137,7 @@ export default function SettingsPage() {
                 <Button
                   variant={theme === "system" ? "default" : "outline"}
                   size="sm"
-                  className={theme === "system" ? "gap-2 bg-[#0071E3] text-white" : "gap-2"}
+                  className={theme === "system" ? "gap-2 bg-[#C2410C] text-white" : "gap-2"}
                   onClick={() => setTheme("system")}
                 >
                   <Monitor className="h-4 w-4" />
@@ -161,7 +161,7 @@ export default function SettingsPage() {
               <div>
                 <p className="text-sm text-muted-foreground">{t("currentPlan")}</p>
                 <div className="mt-1 flex items-center gap-2">
-                  <Badge className="bg-[#0071E3]/10 text-[#0071E3]">
+                  <Badge className="bg-[#C2410C]/10 text-[#C2410C]">
                     {tPlans("pro")}
                   </Badge>
                 </div>

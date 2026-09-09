@@ -28,7 +28,7 @@ export function ABTestCard({ test, mode = "compact" }: ABTestCardProps) {
       <Card>
         <CardContent className="flex items-center justify-between p-4">
           <div className="flex items-center gap-3">
-            <TrendingUp className="h-5 w-5 text-[#0071E3]" />
+            <TrendingUp className="h-5 w-5 text-[#C2410C]" />
             <div>
               <p className="text-sm font-medium">
                 {test.variants.map((v) => v.template).join(" vs ")}
@@ -66,7 +66,7 @@ export function ABTestCard({ test, mode = "compact" }: ABTestCardProps) {
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2 text-base font-[family-name:var(--font-geist)]">
-            <TrendingUp className="h-5 w-5 text-[#0071E3]" />
+            <TrendingUp className="h-5 w-5 text-[#C2410C]" />
             {test.variants.map((v) => v.template).join(" vs ")}
           </CardTitle>
           <Badge className={STATUS_STYLES[test.status] || ""}>
@@ -81,7 +81,7 @@ export function ABTestCard({ test, mode = "compact" }: ABTestCardProps) {
               <XAxis dataKey="template" tick={{ fontSize: 12 }} />
               <YAxis tick={{ fontSize: 12 }} />
               <Tooltip />
-              <Bar dataKey="views" fill="#0071E3" name={t("abTestViews")} />
+              <Bar dataKey="views" fill="#C2410C" name={t("abTestViews")} />
               <Bar dataKey="engagement" fill="#10B981" name={t("abTestEngagement")} />
               <Bar dataKey="qrClicks" fill="#F59E0B" name={t("abTestQrClicks")} />
             </BarChart>
@@ -121,7 +121,7 @@ export function ABTestCard({ test, mode = "compact" }: ABTestCardProps) {
         </div>
 
         {winner && (
-          <p className="rounded-lg bg-[#0071E3]/5 p-3 text-center text-sm text-[#0071E3]">
+          <p className="rounded-lg bg-[#C2410C]/5 p-3 text-center text-sm text-[#C2410C]">
             {t("abTestRecommendation", { template: winner.template })}
           </p>
         )}

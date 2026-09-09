@@ -5,18 +5,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>ARShot — Laboratoire qualité</title>
   <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     :root {
-      --bg: #f5f5f7;
-      --card: #ffffff;
-      --border: rgba(0, 0, 0, 0.06);
-      --electric: #0071E3;
-      --violet: #7D7AFF;
-      --text: #1d1d1f;
-      --muted: #6e6e73;
-      --green: #10B981;
-      --amber: #F59E0B;
+      --bg: #faf8f3;
+      --card: #fffdf9;
+      --border: rgba(22, 19, 14, 0.12);
+      --electric: #C2410C;
+      --ink: #16130e;
+      --text: #16130e;
+      --muted: #6f6a5e;
+      --green: #2f6b4f;
+      --amber: #b8860b;
     }
     html, body { background: var(--bg); }
     body {
@@ -29,9 +32,8 @@
       content: "";
       position: fixed; inset: 0; z-index: 0; pointer-events: none;
       background:
-        radial-gradient(ellipse 55% 45% at 12% 0%, rgba(168, 216, 255, 0.5), transparent 70%),
-        radial-gradient(ellipse 45% 40% at 85% 8%, rgba(216, 204, 255, 0.45), transparent 70%),
-        radial-gradient(ellipse 40% 35% at 60% 45%, rgba(255, 224, 204, 0.3), transparent 75%);
+        radial-gradient(ellipse 55% 45% at 12% 0%, rgba(243, 228, 208, 0.55), transparent 70%),
+        radial-gradient(ellipse 45% 40% at 85% 8%, rgba(239, 231, 216, 0.5), transparent 70%);
     }
     body::after {
       content: "";
@@ -40,24 +42,25 @@
     }
     main { position: relative; z-index: 1; max-width: 1280px; margin: 0 auto; padding: 24px 20px 48px; }
 
-    .brand { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 8px 0 18px; }
-    .brand-mark {
-      width: 30px; height: 30px; border-radius: 9px;
-      background: linear-gradient(135deg, var(--electric), var(--violet));
-      box-shadow: 0 6px 18px -6px rgba(0, 113, 227, 0.4);
-      display: flex; align-items: center; justify-content: center;
-      font-weight: 800; font-size: 15px; color: white;
+    .brand { display: flex; align-items: baseline; justify-content: center; gap: 2px; padding: 8px 0 18px; }
+    .brand-mark { color: var(--electric); }
+    .brand span {
+      font-family: "Instrument Serif", Georgia, serif;
+      font-weight: 400; font-size: 28px; letter-spacing: -0.01em;
     }
-    .brand span { font-weight: 700; font-size: 18px; letter-spacing: -0.02em; }
 
-    h1 { text-align: center; font-size: 30px; font-weight: 700; letter-spacing: -0.03em; padding-bottom: 16px; }
-    h1 em { font-style: normal; background: linear-gradient(90deg, var(--electric), var(--violet)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    h1 {
+      text-align: center; font-family: "Instrument Serif", Georgia, serif;
+      font-size: 44px; font-weight: 400; letter-spacing: -0.01em; padding-bottom: 18px;
+    }
+    h1 em { font-style: italic; color: var(--electric); }
 
     .rule-banner {
       max-width: 860px; margin: 0 auto 28px;
-      border-radius: 18px; padding: 16px 22px;
+      border-radius: 4px; padding: 16px 22px;
       background: var(--card); border: 1px solid var(--border);
-      box-shadow: 0 16px 40px -24px rgba(0, 0, 0, 0.12);
+      border-left: 3px solid var(--electric);
+      box-shadow: 0 16px 40px -28px rgba(22, 19, 14, 0.18);
       font-size: 14.5px; line-height: 1.55; color: var(--muted);
     }
     .rule-banner strong { color: var(--text); }
@@ -68,9 +71,9 @@
       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     }
     .panel {
-      border-radius: 22px; overflow: hidden;
+      border-radius: 4px; overflow: hidden;
       background: var(--card); border: 1px solid var(--border);
-      box-shadow: 0 20px 48px -28px rgba(0, 0, 0, 0.14);
+      box-shadow: 0 20px 48px -32px rgba(22, 19, 14, 0.2);
       display: flex; flex-direction: column;
     }
     .panel-head { padding: 14px 16px 10px; }
@@ -78,16 +81,19 @@
       display: inline-flex; align-items: center; gap: 8px;
       font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;
       padding: 4px 10px; border-radius: 999px;
-      background: #e8f0fe; color: #0071e3;
-      border: 1px solid rgba(0, 113, 227, 0.18);
+      background: #f7ede4; color: var(--electric);
+      border: 1px solid rgba(194, 65, 12, 0.22);
     }
-    .tier-pro { background: #f0ebff; color: #6d5bd0; border-color: rgba(125, 122, 255, 0.25); }
+    .tier-pro { background: var(--ink); color: #faf8f3; border-color: var(--ink); }
     .price { float: right; font-size: 12.5px; color: var(--muted); font-weight: 600; padding-top: 5px; }
-    .subject { font-size: 16.5px; font-weight: 650; letter-spacing: -0.01em; padding-top: 10px; }
+    .subject {
+      font-family: "Instrument Serif", Georgia, serif;
+      font-size: 21px; font-weight: 400; letter-spacing: -0.01em; padding-top: 10px;
+    }
 
     model-viewer {
       width: 100%; height: 300px;
-      background: radial-gradient(circle at 50% 40%, #f0f0f4, #fafafc 75%);
+      background: radial-gradient(circle at 50% 40%, #f3efe7, #faf8f3 75%);
       outline: none;
     }
 
@@ -103,25 +109,25 @@
     .measured::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
 
     .ar-btn {
-      margin: 0 16px 16px; padding: 11px; border: 0; border-radius: 13px; cursor: pointer;
-      background: linear-gradient(135deg, var(--electric), var(--violet));
-      color: white; font-weight: 650; font-size: 13.5px; font-family: inherit;
-      transition: opacity .15s;
+      margin: 0 16px 16px; padding: 11px; border: 0; border-radius: 980px; cursor: pointer;
+      background: var(--ink);
+      color: #faf8f3; font-weight: 650; font-size: 13.5px; font-family: inherit;
+      transition: background .3s;
     }
-    .ar-btn:hover { opacity: .88; }
+    .ar-btn:hover { background: var(--electric); }
 
     footer { text-align: center; color: var(--muted); font-size: 11.5px; padding-top: 26px; }
     footer b { color: var(--text); font-weight: 600; }
 
     @media (max-width: 640px) {
-      h1 { font-size: 23px; }
+      h1 { font-size: 30px; }
       model-viewer { height: 260px; }
     }
   </style>
 </head>
 <body>
 <main>
-  <div class="brand"><span class="brand-mark">A</span><span>ARShot</span></div>
+  <div class="brand"><span>ARShot</span><span class="brand-mark">.</span></div>
   <h1>Laboratoire <em>qualité</em></h1>
 
   <div class="rule-banner">

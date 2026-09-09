@@ -129,7 +129,7 @@ export default function StudioProductPage() {
     return (
       <AppShell>
         <div className="flex h-64 items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-[#0071E3]" />
+          <Loader2 className="h-8 w-8 animate-spin text-[#C2410C]" />
         </div>
       </AppShell>
     );
@@ -173,7 +173,7 @@ export default function StudioProductPage() {
           <div className="flex justify-center">
             <Button
               size="lg"
-              className="gap-2 bg-[#0071E3] hover:bg-[#005bb5] text-white px-8"
+              className="gap-2 bg-[#C2410C] hover:bg-[#9A3412] text-white px-8"
               disabled={!selectedTemplate || generating}
               onClick={handleGenerate}
             >

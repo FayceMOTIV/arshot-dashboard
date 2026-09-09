@@ -162,7 +162,7 @@ export default function StudioPage() {
         {/* Products Grid */}
         {loading ? (
           <div className="flex h-64 items-center justify-center">
-            <Loader2 className="h-8 w-8 animate-spin text-[#0071E3]" />
+            <Loader2 className="h-8 w-8 animate-spin text-[#C2410C]" />
           </div>
         ) : readyModels.length === 0 ? (
           <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border p-12 text-center">
@@ -172,7 +172,7 @@ export default function StudioPage() {
               {t("noProductsHint")}
             </p>
             <Link href="/products/new" className="mt-4">
-              <Button className="gap-2 bg-[#0071E3] hover:bg-[#005bb5] text-white">
+              <Button className="gap-2 bg-[#C2410C] hover:bg-[#9A3412] text-white">
                 {t("createVideo")}
               </Button>
             </Link>
@@ -193,7 +193,7 @@ export default function StudioPage() {
                       {model.scanCount} {t("abTestViews").toLowerCase()}
                     </p>
                     <Link href={`/studio/${model.id}`} className="mt-3 block">
-                      <Button className="w-full gap-2 bg-[#0071E3] hover:bg-[#005bb5] text-white" size="sm">
+                      <Button className="w-full gap-2 bg-[#C2410C] hover:bg-[#9A3412] text-white" size="sm">
                         <Video className="h-4 w-4" />
                         {t("createVideo")}
                       </Button>

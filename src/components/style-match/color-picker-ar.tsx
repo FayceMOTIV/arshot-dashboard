@@ -129,7 +129,7 @@ export function ColorPickerAR({ onColorPicked, apiUrl }: ColorPickerARProps) {
           width: "100%",
           maxWidth: 300,
           borderRadius: 12,
-          border: "2px solid #0071E3",
+          border: "2px solid #C2410C",
         }}
       />
       {/* Crosshair overlay */}
@@ -141,7 +141,7 @@ export function ColorPickerAR({ onColorPicked, apiUrl }: ColorPickerARProps) {
           transform: "translate(-50%, -50%)",
           width: 40,
           height: 40,
-          border: "2px solid #0071E3",
+          border: "2px solid #C2410C",
           borderRadius: "50%",
           pointerEvents: "none",
         }}
@@ -152,7 +152,7 @@ export function ColorPickerAR({ onColorPicked, apiUrl }: ColorPickerARProps) {
           disabled={analyzing}
           style={{
             padding: "8px 20px",
-            background: "#0071E3",
+            background: "#C2410C",
             color: "white",
             border: "none",
             borderRadius: 8,

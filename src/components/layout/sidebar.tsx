@@ -10,7 +10,6 @@ import {
   BarChart3,
   Settings,
   LogOut,
-  Box,
   Clapperboard,
   Plug,
   X,
@@ -18,7 +17,6 @@ import {
 import { signOut } from "@/lib/firebase";
 import { useRouter } from "@/i18n/navigation";
 import { useEffect } from "react";
-
 const NAV_ITEMS = [
   { key: "dashboard" as const, href: "/dashboard", icon: LayoutDashboard },
   { key: "products" as const, href: "/products", icon: Package },
@@ -51,12 +49,9 @@ export function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
 
   const nav = (
     <>
-      <div className="flex h-16 items-center gap-2.5 border-b border-border px-6">
-        <div className="bg-brand-gradient flex h-8 w-8 items-center justify-center rounded-lg glow-primary">
-          <Box className="h-4 w-4 text-white" />
-        </div>
-        <span className="display-tight text-xl font-bold tracking-tight">
-          AR<span className="text-gradient">Shot</span>
+      <div className="flex h-16 items-center gap-2 border-b border-sidebar-border px-6">
+        <span className="display-tight text-2xl">
+          ARShot<span className="text-[var(--electric)]">.</span>
         </span>
         {onClose && (
           <button
@@ -69,7 +64,7 @@ export function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
         )}
       </div>
 
-      <nav className="flex-1 space-y-1 px-3 py-4">
+      <nav className="flex-1 space-y-0.5 px-4 py-5">
         {NAV_ITEMS.map(({ key, href, icon: Icon }) => {
           const isActive = pathname === href || pathname.startsWith(`${href}/`);
           return (
@@ -77,16 +72,16 @@ export function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
               key={key}
               href={href}
               className={cn(
-                "group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all",
+                "group flex items-center gap-3 rounded-lg border-l-2 px-3 py-2.5 text-sm transition-colors duration-300",
                 isActive
-                  ? "bg-primary/10 text-primary shadow-[inset_0_0_0_1px_color-mix(in_srgb,var(--electric)_30%,transparent)]"
-                  : "text-muted-foreground hover:bg-accent/60 hover:text-foreground"
+                  ? "border-[var(--electric)] bg-accent/60 font-semibold text-foreground"
+                  : "border-transparent font-medium text-muted-foreground hover:bg-accent/40 hover:text-foreground"
               )}
             >
               <Icon
                 className={cn(
-                  "h-5 w-5 transition-transform group-hover:scale-110",
-                  isActive && "drop-shadow-[0_0_6px_color-mix(in_srgb,var(--electric)_60%,transparent)]"
+                  "h-[18px] w-[18px] transition-colors duration-300",
+                  isActive && "text-[var(--electric)]"
                 )}
               />
               {t(key)}
@@ -95,12 +90,12 @@ export function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
         })}
       </nav>
 
-      <div className="border-t border-border p-3">
+      <div className="border-t border-sidebar-border p-3">
         <button
-          className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+          className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
           onClick={handleLogout}
         >
-          <LogOut className="h-5 w-5" />
+          <LogOut className="h-[18px] w-[18px]" />
           {tAuth("logout")}
         </button>
       </div>
@@ -110,21 +105,22 @@ export function Sidebar({ mobileOpen = false, onClose }: SidebarProps) {
   return (
     <>
       {/* Desktop */}
-      <aside className="glass fixed left-0 top-0 z-40 hidden h-screen w-64 flex-col border-y-0 border-l-0 lg:flex">
+      <aside className="fixed left-0 top-0 z-40 hidden h-screen w-64 flex-col border-r border-sidebar-border bg-sidebar lg:flex">
         {nav}
       </aside>
       {/* Mobile drawer */}
       {mobileOpen && (
         <div
-          className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm lg:hidden"
+          className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm lg:hidden"
           onClick={onClose}
         />
       )}
       <aside
         className={cn(
-          "glass fixed left-0 top-0 z-50 flex h-screen w-64 flex-col border-y-0 border-l-0 transition-transform duration-300 lg:hidden",
+          "fixed left-0 top-0 z-50 flex h-screen w-64 flex-col border-r border-sidebar-border bg-sidebar transition-transform duration-500 lg:hidden",
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         )}
+        style={{ transitionTimingFunction: "cubic-bezier(0.22,1,0.36,1)" }}
       >
         {nav}
       </aside>

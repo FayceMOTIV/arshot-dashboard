@@ -118,7 +118,7 @@ export default function LoginPage() {
               <figure className="w-1/2 space-y-2">
                 <div className="aspect-square w-full overflow-hidden rounded-xl bg-white">
                   <ModelViewerElement
-                    src="/demo/sneaker-rouge-pro.glb"
+                    src="/demo/sneaker-hunyuan-pro.glb"
                     alt="Sneaker Rouge — modèle 3D généré par ARShot"
                     className="h-full w-full"
                   />

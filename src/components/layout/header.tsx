@@ -30,7 +30,7 @@ export function Header({ onMenu }: { onMenu?: () => void }) {
     .toUpperCase() || user?.email?.[0]?.toUpperCase() || "?";
 
   return (
-    <header className="glass sticky top-0 z-30 flex h-16 items-center justify-end gap-3 border-x-0 border-t-0 px-4 sm:px-6">
+    <header className="sticky top-0 z-30 flex h-16 items-center justify-end gap-3 border-b border-border bg-background/80 px-4 backdrop-blur-md sm:px-6">
       {/* Mobile menu */}
       {onMenu && (
         <Button

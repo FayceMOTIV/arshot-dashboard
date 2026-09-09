@@ -74,9 +74,9 @@ export default function ModelViewerElement({
         arButton.setAttribute("slot", "ar-button");
         arButton.textContent = "Voir en AR";
         arButton.style.cssText =
-          "padding:8px 16px;background:#0071E3;color:white;border:none;border-radius:8px;" +
-          "font-size:14px;font-weight:600;cursor:pointer;position:absolute;bottom:12px;" +
-          "left:50%;transform:translateX(-50%);box-shadow:0 2px 8px rgba(0,0,0,0.15);";
+          "padding:8px 18px;background:#16130E;color:#FAF8F3;border:none;border-radius:999px;" +
+          "font-size:13px;font-weight:600;cursor:pointer;position:absolute;bottom:12px;" +
+          "left:50%;transform:translateX(-50%);box-shadow:0 2px 10px rgba(22,19,14,0.25);";
         viewer.appendChild(arButton);
       }
 
@@ -104,11 +104,11 @@ export default function ModelViewerElement({
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: "#f5f5f5",
+          background: "#FAF8F3",
           borderRadius: 8,
         }}
       >
-        <div style={{ textAlign: "center", padding: 24, color: "#666" }}>
+        <div style={{ textAlign: "center", padding: 24, color: "#6f6a5e" }}>
           <p style={{ fontSize: 14, fontWeight: 600, marginBottom: 8 }}>
             Aperçu 3D indisponible
           </p>
@@ -124,7 +124,7 @@ export default function ModelViewerElement({
                 display: "inline-block",
                 marginTop: 12,
                 padding: "8px 16px",
-                background: "#0071E3",
+                background: "#16130E",
                 color: "white",
                 borderRadius: 8,
                 fontSize: 13,

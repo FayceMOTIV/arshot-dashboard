@@ -5,7 +5,6 @@ import { useRouter } from "@/i18n/navigation";
 import { useEffect, useState } from "react";
 import { Sidebar } from "./sidebar";
 import { Header } from "./header";
-import { Box } from "lucide-react";
 
 interface AppShellProps {
   children: React.ReactNode;
@@ -25,9 +24,11 @@ export function AppShell({ children }: AppShellProps) {
   if (loading) {
     return (
       <div className="relative flex h-screen items-center justify-center bg-background">
-        <div className="bg-aurora absolute inset-0" />
-        <div className="bg-brand-gradient relative flex h-16 w-16 items-center justify-center rounded-2xl glow-primary">
-          <Box className="h-8 w-8 animate-pulse text-white" />
+        <div className="relative flex flex-col items-center gap-4">
+          <span className="display-tight text-4xl">
+            ARShot<span className="text-[var(--electric)]">.</span>
+          </span>
+          <span className="h-px w-16 animate-pulse bg-[var(--electric)]" />
         </div>
       </div>
     );
@@ -37,7 +38,6 @@ export function AppShell({ children }: AppShellProps) {
 
   return (
     <div className="relative min-h-screen bg-background">
-      <div className="bg-aurora pointer-events-none fixed inset-0" />
       <div className="bg-noise pointer-events-none fixed inset-0" />
       <Sidebar mobileOpen={mobileOpen} onClose={() => setMobileOpen(false)} />
       <div className="relative lg:pl-64">

@@ -95,7 +95,7 @@ export default function StudioPublishPage() {
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder={t("descriptionPlaceholder")}
-                className="mt-1 w-full rounded-lg border border-border bg-background p-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#0071E3]"
+                className="mt-1 w-full rounded-lg border border-border bg-background p-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#C2410C]"
                 rows={4}
               />
             </div>
@@ -138,7 +138,7 @@ export default function StudioPublishPage() {
         {/* Submit */}
         <Button
           size="lg"
-          className="w-full gap-2 bg-[#0071E3] hover:bg-[#005bb5] text-white"
+          className="w-full gap-2 bg-[#C2410C] hover:bg-[#9A3412] text-white"
           disabled={!canPublish || publishing}
           onClick={handlePublish}
         >

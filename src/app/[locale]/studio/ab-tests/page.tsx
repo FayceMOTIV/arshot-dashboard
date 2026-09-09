@@ -86,14 +86,14 @@ export default function ABTestsPage() {
 
         {loading ? (
           <div className="flex h-64 items-center justify-center">
-            <Loader2 className="h-8 w-8 animate-spin text-[#0071E3]" />
+            <Loader2 className="h-8 w-8 animate-spin text-[#C2410C]" />
           </div>
         ) : tests.length === 0 ? (
           <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border p-12 text-center">
             <Beaker className="mb-4 h-12 w-12 text-muted-foreground" />
             <h3 className="text-lg font-medium">{t("abTestPending")}</h3>
             <Link href="/studio" className="mt-4">
-              <Button className="gap-2 bg-[#0071E3] hover:bg-[#005bb5] text-white">
+              <Button className="gap-2 bg-[#C2410C] hover:bg-[#9A3412] text-white">
                 <FlaskConical className="h-4 w-4" />
                 {t("abTestLaunch")}
               </Button>

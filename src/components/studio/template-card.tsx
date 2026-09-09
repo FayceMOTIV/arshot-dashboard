@@ -57,7 +57,7 @@ export function TemplateCard({ templateId, selected, trending, onSelect }: Templ
       className={cn(
         "cursor-pointer transition-all hover:shadow-md",
         selected
-          ? "ring-2 ring-[#0071E3] bg-[#0071E3]/5"
+          ? "ring-2 ring-[#C2410C] bg-[#C2410C]/5"
           : "hover:ring-1 hover:ring-border"
       )}
       onClick={() => onSelect(templateId)}
@@ -68,7 +68,7 @@ export function TemplateCard({ templateId, selected, trending, onSelect }: Templ
           className={cn(
             "flex h-12 w-12 items-center justify-center rounded-xl",
             selected
-              ? "bg-[#0071E3] text-white"
+              ? "bg-[#C2410C] text-white"
               : "bg-muted text-muted-foreground"
           )}
         >

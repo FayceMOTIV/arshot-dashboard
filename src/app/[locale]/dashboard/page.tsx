@@ -30,8 +30,7 @@ const ModelViewer = dynamic(
   { ssr: false }
 );
 
-const DEMO_GLB =
-  "https://modelviewer.dev/shared-assets/models/glTF-Sample-Assets/Models/MaterialsVariantsShoe/glTF-Binary/MaterialsVariantsShoe.glb";
+const DEMO_GLB = "/demo/sneaker-hunyuan-pro.glb";
 
 interface RealStats {
   totalProducts: number;
