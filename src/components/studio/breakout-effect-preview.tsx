@@ -58,7 +58,7 @@ export function BreakoutEffectPreview({
   template,
   productName,
 }: BreakoutEffectPreviewProps) {
-  const config = TEMPLATE_CONFIG[template];
+  const config = TEMPLATE_CONFIG[template] ?? TEMPLATE_CONFIG["360_hype"];
 
   return (
     <div
