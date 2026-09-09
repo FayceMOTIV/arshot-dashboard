@@ -133,9 +133,11 @@ export default function LandingPage() {
   useEffect(() => {
     const { hostname, host, protocol } = window.location;
     const h = ["localhost", "127.0.0.1"].includes(hostname) ? LAN_HOST : host;
-    const glb = `${protocol}//${h}/demo-waterbottle.glb`;
+    const base = `${protocol}//${h}`;
+    const glb = `${base}/demo-waterbottle.glb`;
+    const usdz = `${base}/demo-waterbottle.usdz`;
     setArScanUrl(
-      `${protocol}//${h}/ar.html?glb=${encodeURIComponent(glb)}&name=${encodeURIComponent("Bouteille isotherme")}&demo=1`
+      `${base}/ar.html?glb=${encodeURIComponent(glb)}&usdz=${encodeURIComponent(usdz)}&name=${encodeURIComponent("Pancakes aux myrtilles")}&demo=1`
     );
   }, []);
 
@@ -418,6 +420,7 @@ export default function LandingPage() {
               <ModelViewer
                 src="/demo-waterbottle.glb"
                 alt={t("arVideoRotate")}
+                iosSrc="/demo-waterbottle.usdz"
                 autoRotate
                 cameraControls
                 ar

@@ -66,14 +66,38 @@
     .viewer-container model-viewer { width: 100%; height: 100%; }
 
     .ar-btn {
-      position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
-      background: linear-gradient(135deg, var(--electric), var(--violet));
-      color: white; border: none; border-radius: 50px;
-      padding: 15px 36px; font-size: 16px; font-weight: 700;
+      position: absolute; bottom: 22px; left: 50%; transform: translateX(-50%);
+      background: #0071E3;
+      color: white; border: none; border-radius: 980px;
+      padding: 17px 34px; font-size: 17px; font-weight: 600;
       font-family: inherit; cursor: pointer; white-space: nowrap;
-      box-shadow: 0 10px 28px -8px rgba(0, 113, 227, 0.5);
+      box-shadow: 0 12px 32px -8px rgba(0, 113, 227, 0.55);
       transition: transform 0.15s, box-shadow 0.15s;
+      animation: ar-pulse 2.4s ease-in-out infinite;
     }
+    @keyframes ar-pulse {
+      0%, 100% { box-shadow: 0 12px 32px -8px rgba(0, 113, 227, 0.55), 0 0 0 0 rgba(0, 113, 227, 0.35); }
+      50% { box-shadow: 0 12px 32px -8px rgba(0, 113, 227, 0.55), 0 0 0 12px rgba(0, 113, 227, 0); }
+    }
+    .ar-hint {
+      display: none; text-align: center; padding: 14px 16px 4px;
+      font-size: 13px; color: var(--muted);
+    }
+    .ar-hint.visible { display: block; }
+    .ar-unsupported {
+      display: none; margin: 14px auto 0; max-width: 320px;
+      text-align: center; font-size: 13px; line-height: 1.5;
+      color: #b45309; background: #fef3e2; border: 1px solid #f5d9a8;
+      padding: 10px 14px; border-radius: 12px;
+    }
+    .ar-unsupported.visible { display: block; }
+    .ql-link {
+      display: none; margin: 12px auto 0; width: fit-content;
+      font-size: 14px; font-weight: 600; color: #0071E3;
+      text-decoration: none; padding: 8px 18px; border-radius: 980px;
+      border: 1px solid rgba(0,113,227,0.3); background: rgba(255,255,255,0.7);
+    }
+    .ql-link.visible { display: block; }
     .ar-btn:active { transform: translateX(-50%) scale(0.96); }
 
     .loading-overlay, .error-overlay {
@@ -155,7 +179,7 @@
           shadow-intensity="1"
           environment-image="neutral"
         >
-          <button slot="ar-button" class="ar-btn">Voir dans mon espace</button>
+          <button slot="ar-button" class="ar-btn">Voir en réalité augmentée</button>
         </model-viewer>
 
         <div class="loading-overlay" id="loading-overlay">
@@ -171,6 +195,10 @@
         </div>
       </div>
     </div>
+
+    <a rel="ar" id="ql-link" class="ql-link" href="#">⌁ Ouvrir directement en AR (Quick Look)</a>
+    <p class="ar-hint" id="ar-hint">Pointez votre caméra vers une surface plane — le produit se pose dessus, à l'échelle réelle.</p>
+    <p class="ar-unsupported" id="ar-unsupported">La réalité augmentée n'est pas disponible sur cet appareil — la vue 3D ci-dessus reste interactive.</p>
 
     <div class="desktop-section" id="desktop-section" style="display:none">
       <p class="lead">Scannez ce QR code pour voir le produit en AR</p>
@@ -249,6 +277,21 @@
     if (isMobile) {
       viewer.setAttribute('ar', '');
       viewer.setAttribute('ar-modes', isIOS ? 'quick-look webxr' : 'scene-viewer webxr');
+      document.getElementById('ar-hint').classList.add('visible');
+      if (isIOS && usdz) {
+        var ql = document.getElementById('ql-link');
+        ql.setAttribute('href', usdz);
+        ql.classList.add('visible');
+      }
+      if (isIOS && !usdz) {
+        // Quick Look exige un vrai USDZ : sans ios-src, l'AR iOS ne peut pas se lancer
+        document.getElementById('ar-unsupported').classList.add('visible');
+      }
+      viewer.addEventListener('ar-status', function(e) {
+        if (e.detail && e.detail.status === 'failed') {
+          document.getElementById('ar-unsupported').classList.add('visible');
+        }
+      });
     } else {
       document.getElementById('desktop-section').style.display = 'block';
       drawQR(document.getElementById('qr-canvas'), arUrl);

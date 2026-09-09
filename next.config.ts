@@ -28,6 +28,16 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  async headers() {
+    return [
+      {
+        source: "/:path*.usdz",
+        headers: [
+          { key: "Content-Type", value: "model/vnd.usdz+zip" },
+        ],
+      },
+    ];
+  },
 };
 
 export default withNextIntl(nextConfig);
