@@ -17,6 +17,8 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Box, Loader2, ShieldAlert } from "lucide-react";
 import { toast } from "sonner";
+import { IS_DEMO } from "@/lib/api";
+import ModelViewerElement from "@/components/products/model-viewer-element";
 
 /** Generic FR message — never expose raw Firebase/backend errors. */
 function toAuthMessage(): string {
@@ -34,7 +36,8 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!authLoading && user) {
+    // En mode démo on reste sur la landing : elle sert de vitrine (before/after 3D).
+    if (!IS_DEMO && !authLoading && user) {
       router.push("/dashboard");
     }
   }, [user, authLoading, router]);
@@ -100,6 +103,32 @@ export default function LoginPage() {
               </div>
             ))}
           </div>
+          {IS_DEMO && (
+            <div className="glass flex max-w-lg gap-4 rounded-2xl p-4">
+              <figure className="w-1/2 space-y-2">
+                <img
+                  src="/demo/sneaker-source.jpg"
+                  alt="Photo produit source"
+                  className="aspect-square w-full rounded-xl object-cover"
+                />
+                <figcaption className="text-center text-xs text-muted-foreground">
+                  1 photo suffit
+                </figcaption>
+              </figure>
+              <figure className="w-1/2 space-y-2">
+                <div className="aspect-square w-full overflow-hidden rounded-xl bg-white">
+                  <ModelViewerElement
+                    src="/demo/sneaker-rouge.glb"
+                    alt="Sneaker Rouge — modèle 3D généré par ARShot"
+                    className="h-full w-full"
+                  />
+                </div>
+                <figcaption className="text-center text-xs text-muted-foreground">
+                  → modèle 3D réel, généré en 43 s
+                </figcaption>
+              </figure>
+            </div>
+          )}
         </div>
         <p className="text-sm text-muted-foreground">
           &copy; {new Date().getFullYear()} ARShot — FaceMedia Tech Group
@@ -124,11 +153,20 @@ export default function LoginPage() {
             </p>
           </div>
 
-          {!IS_AUTH_CONFIGURED && (
+          {!IS_AUTH_CONFIGURED && !IS_DEMO && (
             <div className="flex items-start gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm">
               <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0 text-amber-500" />
               <p className="text-amber-600 dark:text-amber-400">{t("notConfigured")}</p>
             </div>
+          )}
+
+          {IS_DEMO && (
+            <Button
+              className="bg-brand-gradient hover:opacity-90 h-12 w-full border-0 text-base font-bold text-white glow-primary transition-opacity"
+              onClick={() => router.push("/dashboard")}
+            >
+              Entrer dans la démo
+            </Button>
           )}
 
           <div className="space-y-3">
