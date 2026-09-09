@@ -29,7 +29,7 @@ const TEMPLATE_CONFIG: Record<
   },
   unboxing: {
     bg: "linear-gradient(180deg, #fafafa 0%, #f0f0f0 100%)",
-    accent: "#0066FF",
+    accent: "#0071E3",
     label: "UNBOXING",
   },
   transform: {

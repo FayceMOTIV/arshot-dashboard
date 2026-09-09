@@ -478,6 +478,8 @@
     "finalTitle": "Votre premier produit en AR, dans 60 secondes.",
     "finalSubtitle": "Gratuit, sans carte bancaire. Une photo suffit.",
     "finalCta": "Essayer gratuitement",
-    "footerRights": "© 2026 ARShot. Tous droits réservés."
+    "footerRights": "© 2026 ARShot. Tous droits réservés.",
+    "howPhotoLabel": "La photo",
+    "howModelLabel": "Le modèle 3D généré"
   }
 }

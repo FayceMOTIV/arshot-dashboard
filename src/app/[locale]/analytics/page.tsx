@@ -28,7 +28,7 @@ import {
 } from "lucide-react";
 import type { DeviceSplit, CountryStat, ARModel } from "@/types";
 
-const PIE_COLORS = ["#0066FF", "#10B981", "#F59E0B", "#8B5CF6"];
+const PIE_COLORS = ["#0071E3", "#10B981", "#F59E0B", "#8B5CF6"];
 
 export default function AnalyticsPage() {
   const t = useTranslations("analytics");
@@ -58,7 +58,7 @@ export default function AnalyticsPage() {
     return (
       <AppShell>
         <div className="flex h-64 items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-[#0066FF]" />
+          <Loader2 className="h-8 w-8 animate-spin text-[#0071E3]" />
         </div>
       </AppShell>
     );
@@ -76,7 +76,7 @@ export default function AnalyticsPage() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 font-[family-name:var(--font-geist)]">
-                <Smartphone className="h-5 w-5 text-[#0066FF]" />
+                <Smartphone className="h-5 w-5 text-[#0071E3]" />
                 {t("deviceSplit")}
               </CardTitle>
             </CardHeader>
@@ -141,7 +141,7 @@ export default function AnalyticsPage() {
                       </div>
                       <div className="h-2 w-full rounded-full bg-muted">
                         <div
-                          className="h-full rounded-full bg-[#0066FF] transition-all"
+                          className="h-full rounded-full bg-[#0071E3] transition-all"
                           style={{ width: `${width}%` }}
                         />
                       </div>
@@ -190,7 +190,7 @@ export default function AnalyticsPage() {
                       fontSize: "12px",
                     }}
                   />
-                  <Bar dataKey="scanCount" fill="#0066FF" radius={[0, 4, 4, 0]} />
+                  <Bar dataKey="scanCount" fill="#0071E3" radius={[0, 4, 4, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>

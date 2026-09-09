@@ -41,7 +41,7 @@ export function StylePreviewSection({ productId, enabled = true }: StylePreviewS
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2 font-[family-name:var(--font-geist)]">
-          <Palette className="h-5 w-5 text-[#0066FF]" />
+          <Palette className="h-5 w-5 text-[#0071E3]" />
           {t("preview")}
         </CardTitle>
       </CardHeader>

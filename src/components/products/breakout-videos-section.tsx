@@ -182,7 +182,7 @@ export function BreakoutVideosSection({
               {t("noBreakouts")}
             </p>
             <Link href={`/studio/${productId}`}>
-              <Button className="gap-2 bg-[#0066FF] hover:bg-[#0052CC] text-white">
+              <Button className="gap-2 bg-[#0071E3] hover:bg-[#005bb5] text-white">
                 <Video className="h-4 w-4" />
                 {t("generateVideo")}
               </Button>
@@ -203,7 +203,7 @@ export function BreakoutVideosSection({
         <Link href={`/studio/${productId}`}>
           <Button
             size="sm"
-            className="gap-2 bg-[#0066FF] hover:bg-[#0052CC] text-white"
+            className="gap-2 bg-[#0071E3] hover:bg-[#005bb5] text-white"
           >
             <Video className="h-3.5 w-3.5" />
             {t("generateVideo")}

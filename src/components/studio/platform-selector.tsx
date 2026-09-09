@@ -40,7 +40,7 @@ export function PlatformSelector({ selected, onChange }: PlatformSelectorProps) 
               className={cn(
                 "flex items-center gap-2 rounded-lg border-2 px-4 py-3 text-sm font-medium transition-all",
                 isSelected
-                  ? "border-[#0066FF] shadow-sm"
+                  ? "border-[#0071E3] shadow-sm"
                   : "border-border opacity-50 hover:opacity-75"
               )}
             >

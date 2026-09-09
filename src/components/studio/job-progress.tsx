@@ -22,7 +22,7 @@ const STATUS_CONFIG: Record<
   },
   processing: {
     icon: Loader2,
-    color: "text-[#0066FF]",
+    color: "text-[#0071E3]",
     badgeClass: "bg-blue-100 text-blue-700",
   },
   done: {

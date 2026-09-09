@@ -66,7 +66,7 @@ export function VideoPreview({
             {t("downloadMp4")}
           </Button>
           <Link href={`/studio/${productId}/publish?jobId=${jobId}`} className="flex-1">
-            <Button className="w-full gap-2 bg-[#0066FF] hover:bg-[#0052CC] text-white">
+            <Button className="w-full gap-2 bg-[#0071E3] hover:bg-[#005bb5] text-white">
               <Send className="h-4 w-4" />
               {t("publishNow")}
             </Button>

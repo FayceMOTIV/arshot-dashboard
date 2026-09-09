@@ -1,20 +1,10 @@
 import type { Metadata } from "next";
-import { Geist, Inter } from "next/font/google";
 import "./globals.css";
 
-const geist = Geist({
-  variable: "--font-geist",
-  subsets: ["latin"],
-});
-
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-});
-
 export const metadata: Metadata = {
-  title: "ARShot — AR pour e-commerçants",
-  description: "Créez des expériences AR pour vos produits en quelques minutes",
+  title: "ARShot — Vos produits en 3D et en AR",
+  description:
+    "D'une simple photo, créez le modèle 3D et l'expérience AR de vos produits. QR code, export Amazon, viewer sans application.",
 };
 
 export default function RootLayout({
@@ -24,9 +14,7 @@ export default function RootLayout({
 }>) {
   return (
     <html suppressHydrationWarning>
-      <body className={`${geist.variable} ${inter.variable} font-sans antialiased`}>
-        {children}
-      </body>
+      <body className="font-sans antialiased">{children}</body>
     </html>
   );
 }

@@ -56,7 +56,7 @@ export function CalendarWeek({ posts }: CalendarWeekProps) {
                 key={date.toISOString()}
                 className={`flex flex-col items-center rounded-lg p-2 text-center ${
                   isToday(date)
-                    ? "bg-[#0066FF]/10 ring-1 ring-[#0066FF]/30"
+                    ? "bg-[#0071E3]/10 ring-1 ring-[#0071E3]/30"
                     : "bg-muted/50"
                 }`}
               >
@@ -65,7 +65,7 @@ export function CalendarWeek({ posts }: CalendarWeekProps) {
                 </span>
                 <span
                   className={`text-sm font-medium ${
-                    isToday(date) ? "text-[#0066FF]" : ""
+                    isToday(date) ? "text-[#0071E3]" : ""
                   }`}
                 >
                   {formatDayNum(date)}

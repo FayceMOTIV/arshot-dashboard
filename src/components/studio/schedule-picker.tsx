@@ -39,7 +39,7 @@ export function SchedulePicker({
             className={cn(
               "flex flex-col items-center gap-2 rounded-lg border-2 p-3 text-sm transition-all",
               scheduleType === id
-                ? "border-[#0066FF] bg-[#0066FF]/5"
+                ? "border-[#0071E3] bg-[#0071E3]/5"
                 : "border-border hover:border-muted-foreground/30"
             )}
           >

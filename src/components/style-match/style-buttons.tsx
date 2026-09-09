@@ -66,7 +66,7 @@ export function StyleButtons({ onStyleChange }: StyleButtonsProps) {
             alignItems: "center",
             gap: 6,
             padding: "10px 16px",
-            border: activeStyle === style.id ? "2px solid #0066FF" : "2px solid #E5E7EB",
+            border: activeStyle === style.id ? "2px solid #0071E3" : "2px solid #E5E7EB",
             borderRadius: 24,
             background: activeStyle === style.id ? "rgba(0,102,255,0.08)" : "white",
             fontSize: 14,

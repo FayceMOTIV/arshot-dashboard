@@ -10,6 +10,7 @@ interface ModelViewerElementProps {
   autoRotate?: boolean;
   cameraControls?: boolean;
   ar?: boolean;
+  variantName?: string;
 }
 
 export default function ModelViewerElement({
@@ -20,6 +21,7 @@ export default function ModelViewerElement({
   autoRotate = true,
   cameraControls = true,
   ar = false,
+  variantName,
 }: ModelViewerElementProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [error, setError] = useState(false);
@@ -50,6 +52,7 @@ export default function ModelViewerElement({
       viewer.setAttribute("environment-image", "neutral");
 
       if (iosSrc) viewer.setAttribute("ios-src", iosSrc);
+      if (variantName) viewer.setAttribute("variant-name", variantName);
       if (autoRotate) viewer.setAttribute("auto-rotate", "");
       if (cameraControls) viewer.setAttribute("camera-controls", "");
       if (ar) {
@@ -59,7 +62,7 @@ export default function ModelViewerElement({
         arButton.setAttribute("slot", "ar-button");
         arButton.textContent = "Voir en AR";
         arButton.style.cssText =
-          "padding:8px 16px;background:#0066FF;color:white;border:none;border-radius:8px;" +
+          "padding:8px 16px;background:#0071E3;color:white;border:none;border-radius:8px;" +
           "font-size:14px;font-weight:600;cursor:pointer;position:absolute;bottom:12px;" +
           "left:50%;transform:translateX(-50%);box-shadow:0 2px 8px rgba(0,0,0,0.15);";
         viewer.appendChild(arButton);
@@ -75,7 +78,7 @@ export default function ModelViewerElement({
         container.removeChild(viewer);
       }
     };
-  }, [src, alt, iosSrc, autoRotate, cameraControls, ar]);
+  }, [src, alt, iosSrc, autoRotate, cameraControls, ar, variantName]);
 
   if (error) {
     return (
@@ -105,7 +108,7 @@ export default function ModelViewerElement({
                 display: "inline-block",
                 marginTop: 12,
                 padding: "8px 16px",
-                background: "#0066FF",
+                background: "#0071E3",
                 color: "white",
                 borderRadius: 8,
                 fontSize: 13,

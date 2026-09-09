@@ -168,7 +168,7 @@ export default function CustomersARPage() {
               </SelectContent>
             </Select>
             <Button
-              className="gap-2 bg-[#0066FF] hover:bg-[#0052CC] text-white"
+              className="gap-2 bg-[#0071E3] hover:bg-[#005bb5] text-white"
               disabled={generating || filteredCaptures.length === 0}
               onClick={handleGenerateSocialProof}
             >
@@ -186,7 +186,7 @@ export default function CustomersARPage() {
         {filteredCaptures.length > 0 && (
           <Card>
             <CardContent className="flex items-center gap-3 py-3">
-              <Users className="h-5 w-5 text-[#0066FF]" />
+              <Users className="h-5 w-5 text-[#0071E3]" />
               <p className="text-sm">
                 {t("socialProofVideoHint", { count: filteredCaptures.length })}
               </p>
@@ -223,7 +223,7 @@ export default function CustomersARPage() {
         {/* Captures Grid */}
         {loading ? (
           <div className="flex h-64 items-center justify-center">
-            <Loader2 className="h-8 w-8 animate-spin text-[#0066FF]" />
+            <Loader2 className="h-8 w-8 animate-spin text-[#0071E3]" />
           </div>
         ) : filteredCaptures.length === 0 ? (
           <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border p-12 text-center">
