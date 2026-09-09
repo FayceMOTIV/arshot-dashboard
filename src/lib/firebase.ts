@@ -49,6 +49,20 @@ const appleProvider = IS_AUTH_CONFIGURED
     })()
   : null;
 
+// ── Demo mode: opt-in fake user when Firebase is NOT configured. ──
+// Never active in production: requires BOTH the demo flag AND missing config.
+const IS_DEMO = process.env.NEXT_PUBLIC_ARSHOT_DEMO === "true";
+export const IS_DEMO_AUTH = IS_DEMO && !IS_AUTH_CONFIGURED;
+
+const DEMO_USER = {
+  uid: "demo-user",
+  email: "demo@arshot.fr",
+  displayName: "Démo ARShot",
+  emailVerified: true,
+  isAnonymous: false,
+  getIdToken: async () => "demo",
+} as unknown as User;
+
 function requireAuth() {
   if (!auth) throw new Error(AUTH_NOT_CONFIGURED);
   return auth;
@@ -76,12 +90,17 @@ export async function signOut() {
 }
 
 export async function getIdToken(): Promise<string | null> {
+  if (IS_DEMO_AUTH) return "demo";
   const user = auth?.currentUser;
   if (!user) return null;
   return user.getIdToken();
 }
 
 export function onAuthChange(callback: (user: User | null) => void) {
+  if (IS_DEMO_AUTH) {
+    const id = setTimeout(() => callback(DEMO_USER), 0);
+    return () => clearTimeout(id);
+  }
   if (!auth) {
     // Not configured → immediately report logged out (AppShell redirects to /login)
     const id = setTimeout(() => callback(null), 0);

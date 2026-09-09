@@ -174,25 +174,75 @@ export async function generateMetadata({ params }: ARPageProps): Promise<Metadat
   };
 }
 
+function ArErrorState({ message }: { message: string }) {
+  return (
+    <div
+      style={{
+        display: "flex",
+        minHeight: "100vh",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 24,
+        background: "radial-gradient(ellipse at top, #141428 0%, #07070d 60%)",
+        color: "#e7e7ef",
+        fontFamily:
+          "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+        padding: 24,
+        textAlign: "center",
+      }}
+    >
+      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <span
+          style={{
+            display: "inline-flex",
+            width: 36,
+            height: 36,
+            alignItems: "center",
+            justifyContent: "center",
+            borderRadius: 10,
+            background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
+            color: "#fff",
+            fontWeight: 700,
+          }}
+        >
+          A
+        </span>
+        <span style={{ fontSize: 20, fontWeight: 700 }}>ARShot</span>
+      </div>
+      <p style={{ margin: 0, fontSize: 18, fontWeight: 600 }}>{message}</p>
+      <p style={{ margin: 0, fontSize: 14, color: "#9a9ab0" }}>
+        Vérifiez le lien ou scannez à nouveau le QR code.
+      </p>
+      <a
+        href="https://arshot.fr"
+        style={{
+          marginTop: 8,
+          padding: "12px 24px",
+          borderRadius: 12,
+          background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
+          color: "#fff",
+          fontWeight: 600,
+          textDecoration: "none",
+        }}
+      >
+        Découvrir ARShot
+      </a>
+    </div>
+  );
+}
+
 export default async function ARViewerPage({ params }: ARPageProps) {
   const { shortId } = await params;
 
   if (!/^[a-zA-Z0-9-]+$/.test(shortId)) {
-    return (
-      <div style={{ display: "flex", minHeight: "100vh", alignItems: "center", justifyContent: "center" }}>
-        <p>Lien invalide</p>
-      </div>
-    );
+    return <ArErrorState message="Lien invalide" />;
   }
 
   const product = await fetchProductData(shortId);
 
   if (!product || !product.glbUrl) {
-    return (
-      <div style={{ display: "flex", minHeight: "100vh", alignItems: "center", justifyContent: "center" }}>
-        <p>Produit non trouvé</p>
-      </div>
-    );
+    return <ArErrorState message="Produit non trouvé" />;
   }
 
   // All devices → ar.html (model-viewer handles AR Quick Look on iOS natively via ios-src)
