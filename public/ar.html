@@ -110,6 +110,15 @@
       font-family: inherit; cursor: pointer;
     }
 
+    .demo-badge {
+      position: absolute; top: 12px; right: 12px; z-index: 5;
+      background: rgba(255,255,255,0.85); backdrop-filter: blur(8px);
+      color: #0071E3; font-size: 11px; font-weight: 700;
+      padding: 5px 12px; border-radius: 999px;
+      border: 1px solid rgba(0,113,227,0.2); display: none;
+    }
+    .demo-badge.visible { display: block; }
+
     .desktop-section { text-align: center; padding: 28px 20px 8px; }
     .desktop-section p.lead { font-size: 15px; color: var(--muted); margin-bottom: 18px; }
     .qr-box {
@@ -137,6 +146,7 @@
     <div class="product-name" id="product-name">Chargement…</div>
 
     <div class="viewer-card">
+      <div class="demo-badge" id="demo-badge">Démo ARShot</div>
       <div class="viewer-container">
         <model-viewer
           id="viewer"
@@ -176,6 +186,7 @@
     var glb = params.get('glb');
     var usdz = params.get('usdz');
     var name = params.get('name') || 'Produit';
+    if (params.get('demo') === '1') document.getElementById('demo-badge').classList.add('visible');
 
     document.getElementById('product-name').textContent = name;
     var viewer = document.getElementById('viewer');

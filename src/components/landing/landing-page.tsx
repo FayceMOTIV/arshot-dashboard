@@ -46,7 +46,7 @@ const FEATURE_TINTS = [
 const USECASE_ICONS = [Store, UtensilsCrossed, Hammer, Package];
 const USECASE_IMAGES = [
   "/landing-sneaker-studio.jpg",
-  "/landing-bottle.jpg",
+  "/landing-table-restaurant.jpg",
   "/landing-chair.jpg",
   "/landing-lamp.jpg",
 ];
@@ -126,12 +126,16 @@ function PillCta({
 export default function LandingPage() {
   const t = useTranslations("landing");
 
-  const [arDemoUrl, setArDemoUrl] = useState(
-    `/ar.html?glb=${encodeURIComponent(HERO_GLB)}`
-  );
+  // Démo locale : en localhost on encode l'IP LAN du Mac pour que le QR soit
+  // scannable depuis un téléphone sur le même Wi-Fi. Ailleurs, l'origin courant.
+  const LAN_HOST = "192.168.10.117:3000";
+  const [arScanUrl, setArScanUrl] = useState("");
   useEffect(() => {
-    setArDemoUrl(
-      `${window.location.origin}/ar.html?glb=${encodeURIComponent(HERO_GLB)}`
+    const { hostname, host, protocol } = window.location;
+    const h = ["localhost", "127.0.0.1"].includes(hostname) ? LAN_HOST : host;
+    const glb = `${protocol}//${h}/demo-waterbottle.glb`;
+    setArScanUrl(
+      `${protocol}//${h}/ar.html?glb=${encodeURIComponent(glb)}&name=${encodeURIComponent("Bouteille isotherme")}&demo=1`
     );
   }, []);
 
@@ -242,7 +246,7 @@ export default function LandingPage() {
             </div>
             <div className="flex items-center gap-3 border-t border-black/6 bg-white/50 px-5 py-3.5">
               <div className="rounded-xl bg-white p-1.5 shadow-sm ring-1 ring-black/5">
-                <QRCodeSVG value={arDemoUrl} size={56} level="M" fgColor="#1d1d1f" />
+                <QRCodeSVG value={arScanUrl || "https://arshot.fr"} size={56} level="M" fgColor="#1d1d1f" />
               </div>
               <div>
                 <p className="text-sm font-semibold">{t("heroQrTitle")}</p>
@@ -421,6 +425,39 @@ export default function LandingPage() {
             </div>
           </div>
         </div>
+
+        {/* Grand QR — vivre la démo sur son téléphone */}
+        <div
+          className="anim-fade-up mt-5 flex flex-col items-center gap-6 rounded-[28px] bg-white p-8 shadow-[0_24px_60px_-30px_rgba(0,0,0,0.15)] ring-1 ring-black/5 sm:flex-row sm:gap-10 sm:p-10"
+          style={{ animationDelay: "200ms" }}
+        >
+          <div className="shrink-0 rounded-3xl bg-white p-4 shadow-[0_16px_44px_-16px_rgba(0,0,0,0.25)] ring-1 ring-black/8">
+            {arScanUrl ? (
+              <QRCodeSVG value={arScanUrl} size={168} level="M" fgColor="#1d1d1f" />
+            ) : (
+              <div className="h-[168px] w-[168px]" />
+            )}
+          </div>
+          <div className="text-center sm:text-left">
+            <h3 className="display-tight text-2xl font-semibold">
+              {t("arScanTitle")}
+            </h3>
+            <p className="mt-2 max-w-md leading-relaxed text-[#6e6e73]">
+              {t("arScanText")}
+            </p>
+            {arScanUrl && (
+              <a
+                href={arScanUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="pill mt-5 inline-flex items-center gap-2 bg-[#0071e3] px-6 py-3 font-medium text-white shadow-[0_8px_24px_-8px_rgba(0,113,227,0.5)] transition-all hover:scale-[1.03] hover:bg-[#005bb5]"
+              >
+                <Smartphone className="h-4 w-4" />
+                {t("arScanMobile")}
+              </a>
+            )}
+          </div>
+        </div>
       </section>
 
       {/* ── Tout un atelier ── */}
@@ -466,7 +503,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── Cas d'usage ── */}
+      {/* ── Cas d'usage — mini-histoires ── */}
       <section id="usecases" className="mx-auto max-w-6xl px-5 py-16 sm:px-8">
         <div className="anim-fade-up mb-12 max-w-2xl">
           <h2
@@ -477,31 +514,47 @@ export default function LandingPage() {
           </h2>
           <p className="mt-3 text-xl text-[#6e6e73]">{t("useCasesSubtitle")}</p>
         </div>
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="space-y-6">
           {USECASE_ICONS.map((Icon, i) => (
             <div
               key={i}
-              className="anim-fade-up group overflow-hidden rounded-[28px] bg-white shadow-[0_24px_60px_-30px_rgba(0,0,0,0.15)] ring-1 ring-black/5 transition-transform duration-300 hover:-translate-y-1.5"
-              style={{ animationDelay: `${i * 100}ms` }}
+              className="anim-fade-up grid overflow-hidden rounded-[28px] bg-white shadow-[0_24px_60px_-30px_rgba(0,0,0,0.15)] ring-1 ring-black/5 md:grid-cols-2"
+              style={{ animationDelay: `${i * 90}ms` }}
             >
-              <div className="relative h-44 overflow-hidden">
+              <div className={`relative min-h-56 sm:min-h-72 ${i % 2 === 1 ? "md:order-2" : ""}`}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={USECASE_IMAGES[i]}
-                  alt={t(`useCase${i + 1}Title`)}
-                  className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  alt={t(`case${i + 1}Title`)}
+                  className="absolute inset-0 h-full w-full object-cover"
                 />
-                <div className="pill absolute bottom-3 left-3 flex items-center gap-1.5 bg-white/85 px-3 py-1.5 text-xs font-semibold text-[#1d1d1f] backdrop-blur-md">
+                <div className="pill absolute bottom-4 left-4 flex items-center gap-1.5 bg-white/85 px-3.5 py-1.5 text-xs font-semibold text-[#1d1d1f] backdrop-blur-md">
                   <Icon className="h-3.5 w-3.5 text-[#0071e3]" />
-                  {t(`useCase${i + 1}Title`)}
+                  {t(`case${i + 1}Title`)}
                 </div>
               </div>
-              <div className="space-y-2 p-6">
-                <p className="text-sm leading-relaxed text-[#6e6e73]">
-                  {t(`useCase${i + 1}Desc`)}
+              <div className="flex flex-col justify-center gap-4 p-8 sm:p-10">
+                <h3 className="display-tight text-2xl font-semibold">
+                  {t(`case${i + 1}Title`)}
+                </h3>
+                <p className="text-lg italic leading-snug text-[#6e6e73]">
+                  « {t(`case${i + 1}Problem`)} »
                 </p>
-                <p className="text-sm font-semibold text-[#0071e3]">
-                  {t(`useCase${i + 1}Stat`)}
+                <p className="font-medium leading-snug">
+                  {t(`case${i + 1}Solution`)}
+                </p>
+                <div>
+                  <p className="text-sm font-bold text-[#0071e3]">
+                    {t(`case${i + 1}Stat`)}
+                  </p>
+                  {t(`case${i + 1}StatSource`) && (
+                    <p className="mt-0.5 text-[11px] text-[#6e6e73]">
+                      {t(`case${i + 1}StatSource`)}
+                    </p>
+                  )}
+                </div>
+                <p className="rounded-2xl bg-[#f5f5f7] px-5 py-3.5 text-sm leading-relaxed text-[#4b4b50]">
+                  {t(`case${i + 1}Example`)}
                 </p>
               </div>
             </div>
