@@ -134,8 +134,8 @@ export default function LandingPage() {
     const { hostname, host, protocol } = window.location;
     const h = ["localhost", "127.0.0.1"].includes(hostname) ? LAN_HOST : host;
     const base = `${protocol}//${h}`;
-    const glb = `${base}/demo-waterbottle.glb`;
-    const usdz = `${base}/demo-waterbottle.usdz`;
+    const glb = `${base}/demo-pancakes.glb`;
+    const usdz = `${base}/demo-pancakes.usdz`;
     setArScanUrl(
       `${base}/ar.html?glb=${encodeURIComponent(glb)}&usdz=${encodeURIComponent(usdz)}&name=${encodeURIComponent("Pancakes aux myrtilles")}&demo=1`
     );
@@ -418,9 +418,9 @@ export default function LandingPage() {
             </div>
             <div className="min-h-72 flex-1">
               <ModelViewer
-                src="/demo-waterbottle.glb"
+                src="/demo-pancakes.glb"
                 alt={t("arVideoRotate")}
-                iosSrc="/demo-waterbottle.usdz"
+                iosSrc="/demo-pancakes.usdz"
                 autoRotate
                 cameraControls
                 ar
