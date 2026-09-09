@@ -122,3 +122,158 @@ export interface GenerateModelRequest {
   pipeline: PipelineType;
   files: File[];
 }
+
+// ── ARShot Studio ──
+
+export type StudioJobStatus = "pending" | "processing" | "done" | "failed";
+
+export type VideoTemplateName =
+  | "unboxing"
+  | "levitation"
+  | "transform"
+  | "before_after"
+  | "360_hype"
+  | "asmr_closeup"
+  | "quiet_luxury"
+  | "pov_unboxing";
+
+export interface VideoTemplate {
+  id: VideoTemplateName;
+  label: string;
+  description: string;
+  previewUrl: string | null;
+  trending: boolean;
+}
+
+export interface StudioJob {
+  id: string;
+  productId: string;
+  template: VideoTemplateName;
+  status: StudioJobStatus;
+  videoUrl: string | null;
+  thumbnailUrl: string | null;
+  progress: number;
+  createdAt: string;
+  completedAt: string | null;
+}
+
+export interface TrendData {
+  recommendedTemplate: VideoTemplateName;
+  trendName: string;
+  trendScore: number;
+}
+
+export type PublishPlatform = "tiktok" | "instagram" | "pinterest";
+
+export type ScheduleType = "now" | "best_time" | "custom";
+
+export interface PublishRequest {
+  jobId: string;
+  platforms: PublishPlatform[];
+  description: string;
+  hashtags: string[];
+  socialProof: boolean;
+  scheduleType: ScheduleType;
+  scheduledAt: string | null;
+}
+
+export interface PublishResult {
+  id: string;
+  jobId: string;
+  platforms: PublishPlatform[];
+  status: "queued" | "published" | "failed";
+  scheduledAt: string | null;
+  publishedAt: string | null;
+}
+
+export interface ABTest {
+  id: string;
+  productId: string;
+  variants: ABTestVariant[];
+  status: "running" | "completed" | "pending";
+  startedAt: string;
+  completedAt: string | null;
+}
+
+export interface ABTestVariant {
+  template: VideoTemplateName;
+  views: number;
+  engagement: number;
+  qrClicks: number;
+  winner: boolean;
+}
+
+export interface CustomerARCapture {
+  id: string;
+  productId: string;
+  imageUrl: string;
+  capturedAt: string;
+  device: "ios" | "android" | "desktop";
+  country: string;
+}
+
+export interface ScheduledPost {
+  id: string;
+  jobId: string;
+  productName: string;
+  platform: PublishPlatform;
+  scheduledAt: string;
+  status: "scheduled" | "published" | "failed";
+}
+
+// ── Style Match ──
+
+export type StylePresetName = "scandinavian" | "industrial" | "luxury" | "bohemian";
+
+export interface StylePreset {
+  id: StylePresetName;
+  label: string;
+  icon: string;
+  baseColor: string;
+  metalness: number;
+  roughness: number;
+}
+
+export interface ColorMatchResult {
+  dominantColor: string;
+  palette: string[];
+  metalness: number;
+  roughness: number;
+}
+
+export interface MaterialTransferResult {
+  textureUrl: string;
+  metalness: number;
+  roughness: number;
+}
+
+// ── Integrations ──
+
+export interface IntegrationsStatus {
+  shopify: boolean;
+  woocommerce: boolean;
+  tiktok: boolean;
+  instagram: boolean;
+  shopifyShop?: string;
+  instagramUsername?: string;
+}
+
+export interface ShopifyConnectRequest {
+  shop: string;
+  accessToken: string;
+}
+
+export interface WooConnectRequest {
+  url: string;
+  consumerKey: string;
+  consumerSecret: string;
+}
+
+// ── Plan Video Limits ──
+
+export const PLAN_VIDEO_LIMITS: Record<PlanTier, number> = {
+  starter: 2,
+  pro: 10,
+  business: 50,
+  enterprise: Infinity,
+};

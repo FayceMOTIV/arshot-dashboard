@@ -11,50 +11,82 @@ import {
   type User,
 } from "firebase/auth";
 
-const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
-};
+// ── Fail-closed: no silent dev user. If Firebase is not configured,
+// the app stays logged out and the login screen explains why. ──
+export const IS_AUTH_CONFIGURED = Boolean(
+  process.env.NEXT_PUBLIC_FIREBASE_API_KEY &&
+    process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID &&
+    process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+);
 
-const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
-const auth = getAuth(app);
+const AUTH_NOT_CONFIGURED =
+  "Authentification non configurée — contactez le support.";
 
-const googleProvider = new GoogleAuthProvider();
-const appleProvider = new OAuthProvider("apple.com");
-appleProvider.addScope("email");
-appleProvider.addScope("name");
+let auth: ReturnType<typeof getAuth> | null = null;
+
+if (IS_AUTH_CONFIGURED) {
+  const firebaseConfig = {
+    apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+    authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+    projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+    storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+    messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+    appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  };
+
+  const app =
+    getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
+  auth = getAuth(app);
+}
+
+const googleProvider = IS_AUTH_CONFIGURED ? new GoogleAuthProvider() : null;
+const appleProvider = IS_AUTH_CONFIGURED
+  ? (() => {
+      const p = new OAuthProvider("apple.com");
+      p.addScope("email");
+      p.addScope("name");
+      return p;
+    })()
+  : null;
+
+function requireAuth() {
+  if (!auth) throw new Error(AUTH_NOT_CONFIGURED);
+  return auth;
+}
 
 export async function signInWithEmail(email: string, password: string) {
-  return signInWithEmailAndPassword(auth, email, password);
+  return signInWithEmailAndPassword(requireAuth(), email, password);
 }
 
 export async function signUpWithEmail(email: string, password: string) {
-  return createUserWithEmailAndPassword(auth, email, password);
+  return createUserWithEmailAndPassword(requireAuth(), email, password);
 }
 
 export async function signInWithGoogle() {
-  return signInWithPopup(auth, googleProvider);
+  return signInWithPopup(requireAuth(), googleProvider!);
 }
 
 export async function signInWithApple() {
-  return signInWithPopup(auth, appleProvider);
+  return signInWithPopup(requireAuth(), appleProvider!);
 }
 
 export async function signOut() {
+  if (!auth) return;
   return firebaseSignOut(auth);
 }
 
 export async function getIdToken(): Promise<string | null> {
-  const user = auth.currentUser;
+  const user = auth?.currentUser;
   if (!user) return null;
   return user.getIdToken();
 }
 
 export function onAuthChange(callback: (user: User | null) => void) {
+  if (!auth) {
+    // Not configured → immediately report logged out (AppShell redirects to /login)
+    const id = setTimeout(() => callback(null), 0);
+    return () => clearTimeout(id);
+  }
   return onAuthStateChanged(auth, callback);
 }
 

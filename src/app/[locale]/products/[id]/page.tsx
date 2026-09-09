@@ -1,61 +1,63 @@
 "use client";
 
 import { useEffect, useState, useRef, useCallback } from "react";
+import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
 import { useParams } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
-import { getModel } from "@/lib/api";
+import { getProductStatus, exportAmazon, getArLink } from "@/lib/api";
 import { AppShell } from "@/components/layout/app-shell";
-import { ModelViewerElement } from "@/components/products/model-viewer-element";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
+const ModelViewer = dynamic(
+  () => import("@/components/products/model-viewer-element"),
+  { ssr: false }
+);
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Separator } from "@/components/ui/separator";
+import { Input } from "@/components/ui/input";
 import { QRCodeSVG } from "qrcode.react";
+import { Link } from "@/i18n/navigation";
 import {
   Download,
   Copy,
   Check,
-  ScanLine,
-  Smartphone,
-  Globe,
   Loader2,
   Layers,
-  Monitor,
+  QrCode,
+  Star,
+  Calendar,
+  PackageOpen,
+  ArrowLeft,
+  Smartphone,
+  AlertTriangle,
+  FileBox,
 } from "lucide-react";
 import { toast } from "sonner";
+import { StylePreviewSection } from "@/components/style-match/style-preview-section";
+import { BreakoutVideosSection } from "@/components/products/breakout-videos-section";
 import type { ARModel } from "@/types";
+import { cn } from "@/lib/utils";
 
-const MOCK_MODEL: ARModel = {
-  id: "1",
-  userId: "u1",
-  name: "Lampe scandinave",
-  status: "ready",
-  pipeline: "object_capture",
-  shortId: "abc123",
-  modelUrl: null,
-  thumbnailUrl: null,
-  usdzUrl: "https://example.com/model.usdz",
-  glbUrl: "https://example.com/model.glb",
-  qualityScore: 85,
-  scanCount: 142,
-  createdAt: "2025-02-15T10:00:00Z",
-  updatedAt: "2025-02-15T12:00:00Z",
-};
+function getScoreTone(score: number | null): string {
+  if (!score) return "text-muted-foreground";
+  if (score >= 80) return "text-emerald-500";
+  if (score >= 50) return "text-amber-500";
+  return "text-destructive";
+}
 
-const MOCK_DEVICE_STATS = [
-  { device: "iOS", count: 78, percentage: 55 },
-  { device: "Android", count: 52, percentage: 37 },
-  { device: "Desktop", count: 12, percentage: 8 },
-];
-
-const MOCK_COUNTRY_STATS = [
-  { country: "France", countryCode: "FR", count: 89 },
-  { country: "Allemagne", countryCode: "DE", count: 23 },
-  { country: "Espagne", countryCode: "ES", count: 18 },
-  { country: "États-Unis", countryCode: "US", count: 12 },
-];
+function getStatusTone(status: string): string {
+  switch (status) {
+    case "ready":
+      return "border-emerald-500/40 bg-emerald-500/10 text-emerald-500";
+    case "processing":
+      return "border-amber-500/40 bg-amber-500/10 text-amber-500";
+    case "failed":
+      return "border-destructive/40 bg-destructive/10 text-destructive";
+    default:
+      return "border-border bg-muted text-muted-foreground";
+  }
+}
 
 export default function ProductDetailPage() {
   const t = useTranslations("productDetail");
@@ -64,50 +66,52 @@ export default function ProductDetailPage() {
   const { user } = useAuth();
   const [model, setModel] = useState<ARModel | null>(null);
   const [loading, setLoading] = useState(true);
-  const [copied, setCopied] = useState(false);
+  const [copiedLink, setCopiedLink] = useState(false);
+  const [copiedEmbed, setCopiedEmbed] = useState<string | null>(null);
+  const [amazonLoading, setAmazonLoading] = useState(false);
+  const [amazonWarnings, setAmazonWarnings] = useState<string[]>([]);
   const qrRef = useRef<HTMLDivElement>(null);
 
   const modelId = params.id as string;
-  const shareUrl = `https://ar.arshot.fr/p/${model?.shortId || ""}`;
+  const shareUrl = model ? getArLink(model.shortId || model.id) : "";
 
   useEffect(() => {
     async function loadModel() {
       if (!user) return;
       try {
-        const data = await getModel(modelId);
+        const data = await getProductStatus(modelId);
         setModel(data);
-      } catch {
-        setModel(MOCK_MODEL);
+      } catch (err) {
+        toast.error(err instanceof Error ? err.message : t("notFound"));
+        setModel(null);
       } finally {
         setLoading(false);
       }
     }
     loadModel();
-  }, [user, modelId]);
+  }, [user, modelId, t]);
 
-  const copyLink = useCallback(async () => {
+  const copyArLink = useCallback(async () => {
     await navigator.clipboard.writeText(shareUrl);
-    setCopied(true);
-    toast.success(t("shareLink"));
-    setTimeout(() => setCopied(false), 2000);
+    setCopiedLink(true);
+    toast.success(t("arLinkCopied"));
+    setTimeout(() => setCopiedLink(false), 2000);
   }, [shareUrl, t]);
 
   const downloadQR = useCallback(() => {
     const svg = qrRef.current?.querySelector("svg");
     if (!svg) return;
-
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
-
     const svgData = new XMLSerializer().serializeToString(svg);
     const img = new Image();
     img.onload = () => {
-      canvas.width = 512;
-      canvas.height = 512;
-      ctx.fillStyle = "white";
-      ctx.fillRect(0, 0, 512, 512);
-      ctx.drawImage(img, 0, 0, 512, 512);
+      canvas.width = 1024;
+      canvas.height = 1024;
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, 1024, 1024);
+      ctx.drawImage(img, 0, 0, 1024, 1024);
       const a = document.createElement("a");
       a.download = `arshot-qr-${model?.shortId || "code"}.png`;
       a.href = canvas.toDataURL("image/png");
@@ -116,13 +120,29 @@ export default function ProductDetailPage() {
     img.src = `data:image/svg+xml;base64,${btoa(svgData)}`;
   }, [model?.shortId]);
 
+  const handleAmazonExport = useCallback(async () => {
+    if (!model) return;
+    setAmazonLoading(true);
+    setAmazonWarnings([]);
+    try {
+      const result = await exportAmazon(model.id);
+      setAmazonWarnings(result.warnings);
+      if (result.url) {
+        window.open(result.url, "_blank", "noopener,noreferrer");
+        toast.success(t("amazonReady"));
+      } else {
+        toast.info(t("amazonNoFile"));
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : t("amazonFailed"));
+    } finally {
+      setAmazonLoading(false);
+    }
+  }, [model, t]);
+
   const getEmbedCode = useCallback(
     (platform: string) => {
-      switch (platform) {
-        case "shopify":
-          return `<!-- ARShot Viewer - Shopify -->
-<script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
-<model-viewer
+      const viewerTag = `<model-viewer
   src="${model?.glbUrl || ""}"
   ios-src="${model?.usdzUrl || ""}"
   alt="${model?.name || ""}"
@@ -132,38 +152,15 @@ export default function ProductDetailPage() {
   auto-rotate
   style="width: 100%; height: 400px;">
 </model-viewer>`;
+      const script = `<script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>`;
+      switch (platform) {
+        case "shopify":
+          return `<!-- ARShot Viewer - Shopify -->\n${script}\n${viewerTag}`;
         case "wordpress":
-          return `<!-- ARShot Viewer - WordPress -->
-<script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
-<model-viewer
-  src="${model?.glbUrl || ""}"
-  ios-src="${model?.usdzUrl || ""}"
-  alt="${model?.name || ""}"
-  ar
-  camera-controls
-  auto-rotate
-  style="width: 100%; height: 400px;">
-</model-viewer>`;
+          return `<!-- ARShot Viewer - WordPress -->\n${script}\n${viewerTag}`;
         case "html":
         default:
-          return `<!DOCTYPE html>
-<html>
-<head>
-  <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
-</head>
-<body>
-  <model-viewer
-    src="${model?.glbUrl || ""}"
-    ios-src="${model?.usdzUrl || ""}"
-    alt="${model?.name || ""}"
-    ar
-    ar-modes="webxr scene-viewer quick-look"
-    camera-controls
-    auto-rotate
-    style="width: 100%; height: 500px;">
-  </model-viewer>
-</body>
-</html>`;
+          return `<!DOCTYPE html>\n<html>\n<head>\n  ${script}\n</head>\n<body>\n  ${viewerTag}\n</body>\n</html>`;
       }
     },
     [model]
@@ -172,214 +169,242 @@ export default function ProductDetailPage() {
   const copyEmbed = useCallback(
     async (platform: string) => {
       await navigator.clipboard.writeText(getEmbedCode(platform));
-      toast.success("Code copié !");
+      setCopiedEmbed(platform);
+      toast.success(t("widgetCopied"));
+      setTimeout(() => setCopiedEmbed(null), 2000);
     },
-    [getEmbedCode]
+    [getEmbedCode, t]
   );
 
   if (loading) {
     return (
       <AppShell>
-        <div className="flex h-64 items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-[#0066FF]" />
+        <div className="space-y-6">
+          <div className="shimmer h-10 w-64 rounded-xl" />
+          <div className="shimmer aspect-[16/9] rounded-3xl" />
         </div>
       </AppShell>
     );
   }
 
-  if (!model) return null;
+  if (!model) {
+    return (
+      <AppShell>
+        <div className="flex flex-col items-center justify-center py-20 text-center">
+          <div className="glass flex max-w-md flex-col items-center gap-4 rounded-3xl p-10">
+            <PackageOpen className="h-12 w-12 text-muted-foreground" />
+            <h2 className="display-tight text-xl font-bold">{t("notFound")}</h2>
+            <p className="text-muted-foreground">{t("notFoundDescription")}</p>
+            <Link href="/products">
+              <Button className="bg-brand-gradient hover:opacity-90 gap-2 border-0 text-white">
+                <ArrowLeft className="h-4 w-4" />
+                {tProducts("title")}
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </AppShell>
+    );
+  }
+
+  const formattedDate = (date: string) =>
+    new Date(date).toLocaleDateString(undefined, {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
 
   return (
     <AppShell>
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold font-[family-name:var(--font-geist)]">
-            {model.name}
-          </h1>
-          <Badge
-            className={
-              model.status === "ready"
-                ? "bg-emerald-100 text-emerald-700"
-                : "bg-amber-100 text-amber-700"
-            }
-          >
+        {/* Header */}
+        <div className="anim-fade-up flex flex-wrap items-center justify-between gap-3">
+          <div className="space-y-1">
+            <h1 className="display-tight text-3xl font-bold">{model.name}</h1>
+            <div className="flex items-center gap-3 text-sm text-muted-foreground">
+              <span className="flex items-center gap-1.5">
+                <Calendar className="h-3.5 w-3.5" />
+                {formattedDate(model.createdAt)}
+              </span>
+              <span className={cn("flex items-center gap-1.5 font-semibold", getScoreTone(model.qualityScore))}>
+                <Star className="h-3.5 w-3.5" />
+                {t("arScore")} {model.qualityScore ?? "—"}/100
+              </span>
+            </div>
+          </div>
+          <Badge variant="outline" className={cn("px-3 py-1", getStatusTone(model.status))}>
             {tProducts(model.status)}
           </Badge>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-3">
-          {/* 3D Preview */}
-          <Card className="lg:col-span-2">
-            <CardHeader>
-              <CardTitle className="font-[family-name:var(--font-geist)]">
-                {t("preview3d")}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="aspect-[4/3] rounded-lg bg-muted overflow-hidden">
-                {model.glbUrl ? (
-                  <ModelViewerElement
-                    src={model.glbUrl}
-                    alt={model.name}
-                    autoRotate
-                    cameraControls
-                  />
-                ) : (
-                  <div className="flex h-full items-center justify-center text-muted-foreground">
-                    Aperçu 3D
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+        <Tabs defaultValue="preview" className="anim-fade-up" style={{ animationDelay: "100ms" }}>
+          <TabsList className="glass">
+            <TabsTrigger value="preview">{t("tabPreview")}</TabsTrigger>
+            <TabsTrigger value="share">{t("tabShare")}</TabsTrigger>
+            <TabsTrigger value="export">{t("tabExport")}</TabsTrigger>
+          </TabsList>
 
-          {/* QR Code + Share */}
-          <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="font-[family-name:var(--font-geist)]">
+          {/* ── Aperçu ── */}
+          <TabsContent value="preview" className="space-y-6 pt-4">
+            <div className="glass relative aspect-[16/9] overflow-hidden rounded-3xl">
+              <div className="bg-aurora absolute inset-0" />
+              {model.glbUrl ? (
+                <ModelViewer
+                  src={model.glbUrl}
+                  alt={model.name}
+                  iosSrc={model.usdzUrl ?? undefined}
+                  autoRotate
+                  cameraControls
+                  ar
+                />
+              ) : (
+                <div className="relative flex h-full items-center justify-center text-muted-foreground">
+                  {t("preview3d")}
+                </div>
+              )}
+            </div>
+
+            <BreakoutVideosSection productId={modelId} productName={model.name} />
+            <StylePreviewSection productId={modelId} />
+          </TabsContent>
+
+          {/* ── Partager ── */}
+          <TabsContent value="share" className="pt-4">
+            <div className="grid gap-6 md:grid-cols-2">
+              <div className="glass flex flex-col items-center gap-4 rounded-2xl p-8">
+                <p className="flex items-center gap-2 text-sm font-semibold">
+                  <QrCode className="h-4 w-4" />
                   {t("qrCode")}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="flex flex-col items-center gap-4">
-                <div ref={qrRef} className="rounded-lg bg-white p-4">
-                  <QRCodeSVG
-                    value={shareUrl}
-                    size={200}
-                    level="H"
-                    fgColor="#0A0A0A"
-                    imageSettings={{
-                      src: "",
-                      height: 0,
-                      width: 0,
-                      excavate: false,
-                    }}
-                  />
+                </p>
+                <div ref={qrRef} className="rounded-2xl bg-white p-4">
+                  <QRCodeSVG value={shareUrl} size={180} level="H" fgColor="#050508" />
                 </div>
-                <Button
-                  variant="outline"
-                  className="w-full gap-2"
-                  onClick={downloadQR}
-                >
+                <Button variant="outline" className="w-full gap-2" onClick={downloadQR}>
                   <Download className="h-4 w-4" />
-                  {t("downloadQR")}
+                  {t("downloadQr")}
                 </Button>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="font-[family-name:var(--font-geist)]">
-                  {t("shareLink")}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center gap-2 rounded-lg border border-border bg-muted p-3">
-                  <code className="flex-1 truncate text-sm">{shareUrl}</code>
-                  <Button variant="ghost" size="sm" onClick={copyLink}>
-                    {copied ? (
-                      <Check className="h-4 w-4 text-emerald-500" />
-                    ) : (
-                      <Copy className="h-4 w-4" />
-                    )}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-
-        {/* Stats */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="font-[family-name:var(--font-geist)]">
-              {t("stats")}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-6 sm:grid-cols-3">
-              <div>
-                <p className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <ScanLine className="h-4 w-4" />
-                  {t("totalScans")}
-                </p>
-                <p className="mt-1 text-3xl font-bold">{model.scanCount}</p>
               </div>
-              <div>
-                <p className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Smartphone className="h-4 w-4" />
-                  {t("byDevice")}
-                </p>
-                <div className="mt-2 space-y-2">
-                  {MOCK_DEVICE_STATS.map((d) => (
-                    <div key={d.device} className="flex items-center justify-between text-sm">
-                      <span className="flex items-center gap-2">
-                        {d.device === "Desktop" ? (
-                          <Monitor className="h-3.5 w-3.5" />
-                        ) : (
-                          <Smartphone className="h-3.5 w-3.5" />
-                        )}
-                        {d.device}
-                      </span>
-                      <span className="font-medium">{d.percentage}%</span>
-                    </div>
-                  ))}
+
+              <div className="space-y-4">
+                <div className="glass space-y-3 rounded-2xl p-6">
+                  <p className="text-sm font-semibold">{t("shareLink")}</p>
+                  <div className="flex gap-2">
+                    <Input value={shareUrl} readOnly className="bg-background/50 text-sm" />
+                    <Button variant="outline" size="icon" onClick={copyArLink}>
+                      {copiedLink ? <Check className="h-4 w-4 text-emerald-500" /> : <Copy className="h-4 w-4" />}
+                    </Button>
+                  </div>
+                  <a href={shareUrl} target="_blank" rel="noopener noreferrer" className="block">
+                    <Button className="bg-brand-gradient hover:opacity-90 w-full gap-2 border-0 text-white glow-primary">
+                      <Smartphone className="h-4 w-4" />
+                      {t("viewInAR")}
+                    </Button>
+                  </a>
                 </div>
-              </div>
-              <div>
-                <p className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Globe className="h-4 w-4" />
-                  {t("byCountry")}
-                </p>
-                <div className="mt-2 space-y-2">
-                  {MOCK_COUNTRY_STATS.map((c) => (
-                    <div key={c.countryCode} className="flex items-center justify-between text-sm">
-                      <span>{c.country}</span>
-                      <span className="font-medium">{c.count}</span>
-                    </div>
-                  ))}
+                <div className="glass flex items-center justify-between rounded-2xl p-6">
+                  <span className="text-sm text-muted-foreground">{t("totalScans")}</span>
+                  <span className="display-tight text-2xl font-bold">{model.scanCount}</span>
                 </div>
               </div>
             </div>
-          </CardContent>
-        </Card>
+          </TabsContent>
 
-        {/* Embed Code */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 font-[family-name:var(--font-geist)]">
-              <Layers className="h-5 w-5" />
-              {t("embedCode")}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Tabs defaultValue="shopify">
-              <TabsList>
-                <TabsTrigger value="shopify">{t("shopify")}</TabsTrigger>
-                <TabsTrigger value="wordpress">{t("wordpress")}</TabsTrigger>
-                <TabsTrigger value="html">{t("html")}</TabsTrigger>
-              </TabsList>
-              {["shopify", "wordpress", "html"].map((platform) => (
-                <TabsContent key={platform} value={platform}>
-                  <div className="relative">
-                    <pre className="overflow-x-auto rounded-lg bg-muted p-4 text-xs">
-                      <code>{getEmbedCode(platform)}</code>
-                    </pre>
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      className="absolute right-2 top-2 gap-1.5"
-                      onClick={() => copyEmbed(platform)}
-                    >
-                      <Copy className="h-3.5 w-3.5" />
-                      Copier
+          {/* ── Export ── */}
+          <TabsContent value="export" className="space-y-6 pt-4">
+            <div className="grid gap-4 sm:grid-cols-2">
+              {/* GLB — honest raw download */}
+              <div className="glass hover-lift space-y-3 rounded-2xl p-6">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/15">
+                  <FileBox className="h-5 w-5 text-primary" />
+                </div>
+                <p className="font-semibold">{t("downloadGlb")}</p>
+                <p className="text-sm text-muted-foreground">{t("downloadGlbDesc")}</p>
+                {model.glbUrl ? (
+                  <a href={model.glbUrl} download className="block">
+                    <Button variant="outline" className="w-full gap-2">
+                      <Download className="h-4 w-4" />
+                      .GLB
                     </Button>
+                  </a>
+                ) : (
+                  <Button variant="outline" className="w-full" disabled>
+                    {t("notReadyYet")}
+                  </Button>
+                )}
+              </div>
+
+              {/* Amazon — real backend export with spec warnings */}
+              <div className="glass hover-lift space-y-3 rounded-2xl p-6">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/15">
+                  <PackageOpen className="h-5 w-5 text-primary" />
+                </div>
+                <p className="font-semibold">{t("exportAmazonTitle")}</p>
+                <p className="text-sm text-muted-foreground">{t("exportAmazonDesc")}</p>
+                <Button
+                  variant="outline"
+                  className="w-full gap-2"
+                  disabled={amazonLoading || model.status !== "ready"}
+                  onClick={handleAmazonExport}
+                >
+                  {amazonLoading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Download className="h-4 w-4" />
+                  )}
+                  {t("exportAmazonButton")}
+                </Button>
+                {amazonWarnings.length > 0 && (
+                  <div className="space-y-1.5 rounded-lg border border-amber-500/30 bg-amber-500/10 p-3">
+                    <p className="flex items-center gap-1.5 text-xs font-semibold text-amber-500">
+                      <AlertTriangle className="h-3.5 w-3.5" />
+                      {t("amazonWarningsTitle")}
+                    </p>
+                    {amazonWarnings.map((w) => (
+                      <p key={w} className="text-xs text-muted-foreground">• {w}</p>
+                    ))}
                   </div>
-                </TabsContent>
-              ))}
-            </Tabs>
-          </CardContent>
-        </Card>
+                )}
+              </div>
+            </div>
+
+            {/* Embed widget */}
+            <div className="glass rounded-2xl p-6">
+              <p className="mb-4 flex items-center gap-2 font-semibold">
+                <Layers className="h-5 w-5" />
+                {t("widgetTitle")}
+              </p>
+              <Tabs defaultValue="shopify">
+                <TabsList>
+                  <TabsTrigger value="shopify">{t("shopify")}</TabsTrigger>
+                  <TabsTrigger value="wordpress">{t("wordpress")}</TabsTrigger>
+                  <TabsTrigger value="html">{t("html")}</TabsTrigger>
+                </TabsList>
+                {["shopify", "wordpress", "html"].map((platform) => (
+                  <TabsContent key={platform} value={platform}>
+                    <div className="relative">
+                      <pre className="max-h-64 overflow-auto rounded-xl bg-background/60 p-4 text-xs">
+                        <code>{getEmbedCode(platform)}</code>
+                      </pre>
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        className="absolute right-2 top-2 gap-1.5"
+                        onClick={() => copyEmbed(platform)}
+                      >
+                        {copiedEmbed === platform ? (
+                          <Check className="h-3.5 w-3.5 text-emerald-500" />
+                        ) : (
+                          <Copy className="h-3.5 w-3.5" />
+                        )}
+                        {t("widgetCopy")}
+                      </Button>
+                    </div>
+                  </TabsContent>
+                ))}
+              </Tabs>
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
     </AppShell>
   );

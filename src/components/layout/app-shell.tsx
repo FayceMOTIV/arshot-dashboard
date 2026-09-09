@@ -5,7 +5,7 @@ import { useRouter } from "@/i18n/navigation";
 import { useEffect } from "react";
 import { Sidebar } from "./sidebar";
 import { Header } from "./header";
-import { Loader2 } from "lucide-react";
+import { Box } from "lucide-react";
 
 interface AppShellProps {
   children: React.ReactNode;
@@ -23,8 +23,11 @@ export function AppShell({ children }: AppShellProps) {
 
   if (loading) {
     return (
-      <div className="flex h-screen items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-[#0066FF]" />
+      <div className="relative flex h-screen items-center justify-center bg-background">
+        <div className="bg-aurora absolute inset-0" />
+        <div className="bg-brand-gradient relative flex h-16 w-16 items-center justify-center rounded-2xl glow-primary">
+          <Box className="h-8 w-8 animate-pulse text-white" />
+        </div>
       </div>
     );
   }
@@ -32,11 +35,13 @@ export function AppShell({ children }: AppShellProps) {
   if (!user) return null;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="relative min-h-screen bg-background">
+      <div className="bg-aurora pointer-events-none fixed inset-0" />
+      <div className="bg-noise pointer-events-none fixed inset-0" />
       <Sidebar />
-      <div className="pl-64">
+      <div className="relative pl-64">
         <Header />
-        <main className="p-6">{children}</main>
+        <main className="p-6 lg:p-8">{children}</main>
       </div>
     </div>
   );

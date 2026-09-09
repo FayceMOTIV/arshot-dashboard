@@ -1,22 +1,27 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { useAuth } from "@/hooks/useAuth";
-import { useEffect } from "react";
 import {
   signInWithEmail,
   signUpWithEmail,
   signInWithGoogle,
   signInWithApple,
+  IS_AUTH_CONFIGURED,
 } from "@/lib/firebase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { Box, Loader2 } from "lucide-react";
+import { Box, Loader2, ShieldAlert } from "lucide-react";
 import { toast } from "sonner";
+
+/** Generic FR message — never expose raw Firebase/backend errors. */
+function toAuthMessage(): string {
+  return "Connexion impossible — vérifiez vos identifiants et réessayez.";
+}
 
 export default function LoginPage() {
   const t = useTranslations("auth");
@@ -34,45 +39,18 @@ export default function LoginPage() {
     }
   }, [user, authLoading, router]);
 
-  const handleEmailAuth = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handle = async (fn: () => Promise<unknown>) => {
     setLoading(true);
     try {
-      if (isSignUp) {
-        await signUpWithEmail(email, password);
-      } else {
-        await signInWithEmail(email, password);
-      }
+      await fn();
       router.push("/dashboard");
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Erreur de connexion";
-      toast.error(message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleGoogleAuth = async () => {
-    setLoading(true);
-    try {
-      await signInWithGoogle();
-      router.push("/dashboard");
-    } catch (err) {
-      const message = err instanceof Error ? err.message : "Erreur Google";
-      toast.error(message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleAppleAuth = async () => {
-    setLoading(true);
-    try {
-      await signInWithApple();
-      router.push("/dashboard");
-    } catch (err) {
-      const message = err instanceof Error ? err.message : "Erreur Apple";
-      toast.error(message);
+      console.error("[auth]", err);
+      toast.error(
+        err instanceof Error && err.message.includes("non configurée")
+          ? err.message
+          : toAuthMessage()
+      );
     } finally {
       setLoading(false);
     }
@@ -80,48 +58,65 @@ export default function LoginPage() {
 
   if (authLoading) {
     return (
-      <div className="flex h-screen items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-[#0066FF]" />
+      <div className="flex h-screen items-center justify-center bg-background">
+        <div className="bg-brand-gradient flex h-16 w-16 items-center justify-center rounded-2xl glow-primary">
+          <Box className="h-8 w-8 animate-pulse text-white" />
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="flex min-h-screen">
-      {/* Left panel - branding */}
-      <div className="hidden w-1/2 flex-col justify-between bg-[#0066FF] p-12 text-white lg:flex">
-        <div className="flex items-center gap-3">
-          <Box className="h-8 w-8" />
-          <span className="text-2xl font-bold font-[family-name:var(--font-geist)]">
-            ARShot
-          </span>
+    <div className="relative flex min-h-screen bg-background">
+      {/* Ambient background */}
+      <div className="bg-aurora pointer-events-none absolute inset-0" />
+      <div className="bg-grid pointer-events-none absolute inset-0" />
+      <div className="bg-noise pointer-events-none absolute inset-0" />
+
+      {/* Left panel — branding */}
+      <div className="relative hidden w-1/2 flex-col justify-between overflow-hidden p-12 lg:flex">
+        <div className="anim-fade-up flex items-center gap-3">
+          <div className="bg-brand-gradient flex h-10 w-10 items-center justify-center rounded-xl glow-primary">
+            <Box className="h-5 w-5 text-white" />
+          </div>
+          <span className="display-tight text-2xl font-bold tracking-tight">ARShot</span>
         </div>
-        <div className="space-y-4">
-          <h1 className="text-4xl font-bold font-[family-name:var(--font-geist)] leading-tight">
-            {isSignUp
-              ? "Transformez vos produits en expériences AR"
-              : "La réalité augmentée accessible à tous les e-commerçants"}
+        <div className="anim-fade-up space-y-6" style={{ animationDelay: "120ms" }}>
+          <h1 className="display-tight text-5xl font-bold leading-[1.05]">
+            {t("heroLine1")}
+            <br />
+            <span className="text-gradient">{t("heroLine2")}</span>
           </h1>
-          <p className="text-lg text-white/80">
-            Filmez, uploadez, partagez. Vos clients voient vos produits chez eux en AR.
-          </p>
+          <p className="max-w-md text-lg text-muted-foreground">{t("heroSub")}</p>
+          <div className="flex gap-8 pt-4">
+            {[
+              { value: "60s", label: t("heroStat1") },
+              { value: "0 app", label: t("heroStat2") },
+              { value: "QR", label: t("heroStat3") },
+            ].map((s) => (
+              <div key={s.label}>
+                <p className="display-tight text-2xl font-bold">{s.value}</p>
+                <p className="text-sm text-muted-foreground">{s.label}</p>
+              </div>
+            ))}
+          </div>
         </div>
-        <p className="text-sm text-white/60">
+        <p className="text-sm text-muted-foreground">
           &copy; {new Date().getFullYear()} ARShot — FaceMedia Tech Group
         </p>
       </div>
 
-      {/* Right panel - form */}
-      <div className="flex w-full items-center justify-center px-6 lg:w-1/2">
-        <div className="w-full max-w-md space-y-8">
+      {/* Right panel — form */}
+      <div className="relative flex w-full items-center justify-center px-6 lg:w-1/2">
+        <div className="glass anim-scale-in w-full max-w-md space-y-8 rounded-3xl p-8 sm:p-10">
           <div className="space-y-2 text-center">
             <div className="mb-6 flex items-center justify-center gap-2 lg:hidden">
-              <Box className="h-7 w-7 text-[#0066FF]" />
-              <span className="text-xl font-bold font-[family-name:var(--font-geist)]">
-                ARShot
-              </span>
+              <div className="bg-brand-gradient flex h-9 w-9 items-center justify-center rounded-xl">
+                <Box className="h-5 w-5 text-white" />
+              </div>
+              <span className="display-tight text-xl font-bold">ARShot</span>
             </div>
-            <h2 className="text-2xl font-bold font-[family-name:var(--font-geist)]">
+            <h2 className="display-tight text-2xl font-bold">
               {isSignUp ? t("createAccount") : t("welcomeBack")}
             </h2>
             <p className="text-muted-foreground">
@@ -129,12 +124,19 @@ export default function LoginPage() {
             </p>
           </div>
 
+          {!IS_AUTH_CONFIGURED && (
+            <div className="flex items-start gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm">
+              <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0 text-amber-500" />
+              <p className="text-amber-600 dark:text-amber-400">{t("notConfigured")}</p>
+            </div>
+          )}
+
           <div className="space-y-3">
             <Button
               variant="outline"
-              className="w-full gap-3 h-11"
-              onClick={handleGoogleAuth}
-              disabled={loading}
+              className="h-11 w-full gap-3"
+              onClick={() => handle(signInWithGoogle)}
+              disabled={loading || !IS_AUTH_CONFIGURED}
             >
               <svg className="h-5 w-5" viewBox="0 0 24 24">
                 <path
@@ -159,9 +161,9 @@ export default function LoginPage() {
 
             <Button
               variant="outline"
-              className="w-full gap-3 h-11"
-              onClick={handleAppleAuth}
-              disabled={loading}
+              className="h-11 w-full gap-3"
+              onClick={() => handle(signInWithApple)}
+              disabled={loading || !IS_AUTH_CONFIGURED}
             >
               <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
@@ -172,13 +174,23 @@ export default function LoginPage() {
 
           <div className="flex items-center gap-3">
             <Separator className="flex-1" />
-            <span className="text-xs text-muted-foreground uppercase">
+            <span className="text-xs uppercase text-muted-foreground">
               {t("orContinueWith")}
             </span>
             <Separator className="flex-1" />
           </div>
 
-          <form onSubmit={handleEmailAuth} className="space-y-4">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handle(() =>
+                isSignUp
+                  ? signUpWithEmail(email, password)
+                  : signInWithEmail(email, password)
+              );
+            }}
+            className="space-y-4"
+          >
             <div className="space-y-2">
               <Label htmlFor="email">{t("email")}</Label>
               <Input
@@ -189,6 +201,7 @@ export default function LoginPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 disabled={loading}
+                className="bg-background/50"
               />
             </div>
             <div className="space-y-2">
@@ -202,12 +215,13 @@ export default function LoginPage() {
                 required
                 minLength={6}
                 disabled={loading}
+                className="bg-background/50"
               />
             </div>
             <Button
               type="submit"
-              className="w-full h-11 bg-[#0066FF] hover:bg-[#0052CC] text-white"
-              disabled={loading}
+              className="bg-brand-gradient hover:opacity-90 h-11 w-full border-0 text-white glow-primary"
+              disabled={loading || !IS_AUTH_CONFIGURED}
             >
               {loading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -223,7 +237,7 @@ export default function LoginPage() {
             {isSignUp ? t("hasAccount") : t("noAccount")}{" "}
             <button
               onClick={() => setIsSignUp(!isSignUp)}
-              className="font-medium text-[#0066FF] hover:underline"
+              className="font-medium text-primary hover:underline"
             >
               {isSignUp ? t("login") : t("signup")}
             </button>

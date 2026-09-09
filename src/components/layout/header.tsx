@@ -30,7 +30,7 @@ export function Header() {
     .toUpperCase() || user?.email?.[0]?.toUpperCase() || "?";
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center justify-end gap-3 border-b border-border bg-background/80 px-6 backdrop-blur-sm">
+    <header className="glass sticky top-0 z-30 flex h-16 items-center justify-end gap-3 border-x-0 border-t-0 px-6">
       {/* Language switcher */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
@@ -64,7 +64,7 @@ export function Header() {
       <Link href="/settings">
         <Avatar className="h-8 w-8 cursor-pointer">
           <AvatarImage src={user?.photoURL || undefined} />
-          <AvatarFallback className="bg-[#0066FF] text-white text-xs">
+          <AvatarFallback className="bg-brand-gradient text-white text-xs">
             {initials}
           </AvatarFallback>
         </Avatar>

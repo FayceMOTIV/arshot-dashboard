@@ -1,20 +1,10 @@
-import { Geist, Inter } from "next/font/google";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
 import { Providers } from "@/components/providers";
 import { Toaster } from "@/components/ui/sonner";
-
-const geist = Geist({
-  variable: "--font-geist",
-  subsets: ["latin"],
-});
-
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-});
+import { SetLocale } from "@/components/set-locale";
 
 interface LocaleLayoutProps {
   children: React.ReactNode;
@@ -31,15 +21,12 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
   const messages = await getMessages();
 
   return (
-    <html lang={locale} suppressHydrationWarning>
-      <body className={`${geist.variable} ${inter.variable} font-sans antialiased`}>
-        <Providers>
-          <NextIntlClientProvider messages={messages}>
-            {children}
-            <Toaster position="top-right" />
-          </NextIntlClientProvider>
-        </Providers>
-      </body>
-    </html>
+    <Providers>
+      <NextIntlClientProvider messages={messages}>
+        <SetLocale locale={locale} />
+        {children}
+        <Toaster position="top-right" />
+      </NextIntlClientProvider>
+    </Providers>
   );
 }
