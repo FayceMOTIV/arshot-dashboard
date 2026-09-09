@@ -132,50 +132,53 @@ export default function LandingPage() {
         </div>
       </header>
 
-      {/* ── Hero plein cadre — image de fond 100vh, écriture dessus ── */}
+      {/* ── Hero plein cadre — image full-bleed, écriture à gauche ── */}
       <section className="relative flex min-h-[100svh] flex-col overflow-hidden">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/landing-hero-bg.jpg"
           alt=""
-          className="absolute inset-0 h-full w-full object-cover"
+          className="absolute inset-0 h-full w-full object-cover object-[72%_center]"
         />
-        {/* voile pour la lisibilité + transition douce vers la suite */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#f5f5f7]/75 via-transparent to-[#f5f5f7]" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_65%_55%_at_28%_30%,rgba(255,255,255,0.5),transparent_70%)]" />
+        {/* voile horizontal : opaque à gauche (zone texte), transparent à droite */}
+        <div className="absolute inset-0 bg-gradient-to-r from-[#f5f5f7]/90 via-[#f5f5f7]/40 via-45% to-transparent" />
+        {/* transition douce vers la section suivante */}
+        <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[#f5f5f7] to-transparent" />
 
-        <div className="relative mx-auto flex w-full max-w-6xl flex-1 flex-col px-5 pb-56 pt-24 sm:px-8 sm:pt-32 lg:pb-24">
-          <p className="anim-fade-up text-sm font-semibold tracking-wide text-[#0071e3]">
-            {t("heroBadge")}
-          </p>
-          <h1
-            className="display-tight anim-fade-up mt-4 max-w-4xl font-semibold leading-[1.02]"
-            style={{
-              fontSize: "clamp(3rem, 8vw, 6.5rem)",
-              animationDelay: "90ms",
-            }}
-          >
-            {t("heroTitleA")}
-            <br />
-            <span className="text-gradient">{t("heroTitleB")}</span>
-          </h1>
-          <p
-            className="anim-fade-up mt-6 max-w-xl text-lg leading-relaxed text-[#4b4b50] sm:text-xl"
-            style={{ animationDelay: "180ms" }}
-          >
-            {t("heroPitch")}
-          </p>
-          <div
-            className="anim-fade-up mt-8 flex flex-wrap items-center gap-4"
-            style={{ animationDelay: "260ms" }}
-          >
-            <PillCta href="/products/new" big>
-              {t("heroCtaPrimary")}
-              <ArrowRight className="h-5 w-5" />
-            </PillCta>
-            <a href="#how" className="pill inline-flex items-center gap-2 bg-white/60 px-7 py-3.5 text-lg font-medium text-[#0071e3] backdrop-blur-md transition-all hover:scale-[1.03] hover:bg-white/80">
-              {t("heroCtaSecondary")}
-            </a>
+        <div className="relative flex w-full flex-1 flex-col px-6 pb-56 pt-24 text-left sm:pt-32 lg:pl-12 lg:pr-8 lg:pb-24">
+          <div className="max-w-2xl">
+            <p className="anim-fade-up text-sm font-semibold tracking-wide text-[#0071e3]">
+              {t("heroBadge")}
+            </p>
+            <h1
+              className="display-tight anim-fade-up mt-4 font-semibold leading-[1.02]"
+              style={{
+                fontSize: "clamp(3rem, 7vw, 6rem)",
+                animationDelay: "90ms",
+              }}
+            >
+              {t("heroTitleA")}
+              <br />
+              <span className="text-gradient">{t("heroTitleB")}</span>
+            </h1>
+            <p
+              className="anim-fade-up mt-6 max-w-xl text-lg leading-relaxed text-[#4b4b50] sm:text-xl"
+              style={{ animationDelay: "180ms" }}
+            >
+              {t("heroPitch")}
+            </p>
+            <div
+              className="anim-fade-up mt-8 flex flex-wrap items-center gap-4"
+              style={{ animationDelay: "260ms" }}
+            >
+              <PillCta href="/products/new" big>
+                {t("heroCtaPrimary")}
+                <ArrowRight className="h-5 w-5" />
+              </PillCta>
+              <a href="#how" className="pill inline-flex items-center gap-2 bg-white/60 px-7 py-3.5 text-lg font-medium text-[#0071e3] backdrop-blur-md transition-all hover:scale-[1.03] hover:bg-white/80">
+                {t("heroCtaSecondary")}
+              </a>
+            </div>
           </div>
         </div>
 
