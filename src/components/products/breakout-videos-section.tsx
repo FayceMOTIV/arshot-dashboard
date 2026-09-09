@@ -127,9 +127,9 @@ export function BreakoutVideosSection({
               template: b.template,
               templateId: (TEMPLATE_ID_MAP[b.template] || b.template) as VideoTemplateName,
               templateKey: TEMPLATE_KEY_MAP[b.template] || "template360Hype",
-              views: b.views,
-              engagement: b.engagement,
-              trending: b.trending,
+              views: b.views ?? 0,
+              engagement: b.engagement ?? 0,
+              trending: b.trending ?? false,
               createdAt: b.createdAt,
             }));
           setBreakouts(mapped);
